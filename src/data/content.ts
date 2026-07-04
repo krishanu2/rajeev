@@ -39,30 +39,35 @@ export const symptomSelector = {
     {
       id: "pcos",
       label: "PCOS / irregular cycles",
+      short: "PCOS",
       response:
         "Birth control regulates a number on a chart, not the actual hormonal loop. We rebuild the daily inputs — meal timing, insulin sensitivity, sleep, stress — that your cycle actually responds to. Most PCOS clients see a change inside 3–4 months.",
     },
     {
       id: "thyroid",
       label: "Thyroid issues",
+      short: "thyroid",
       response:
         "TSH 'normal' on paper but you're still exhausted and still gaining? Medication manages a lab value — it doesn't manage your metabolism, your energy, or the weight around it. That gap is exactly what I coach.",
     },
     {
       id: "diabetes",
       label: "Diabetes / blood sugar",
+      short: "blood sugar",
       response:
         "For most people caught early-to-moderate, this is a daily-decision condition before it's a permanent-medication condition. We build the structure — food sequencing, movement timing, sleep — alongside your doctor, not instead of them.",
     },
     {
       id: "weight",
       label: "Stubborn weight",
+      short: "weight",
       response:
         "If you've already tried 'eating clean' and working out and the scale won't move, the problem usually isn't effort. It's sequencing — what you're doing, and in what order. That part is fixable, fast.",
     },
     {
       id: "energy",
       label: "Just don't feel like myself",
+      short: "how you're feeling",
       response:
         "No diagnosis, you just know something's off — energy, mood, motivation. That's still a daily-systems problem, and it's still exactly what a consultation call is for.",
     },
@@ -179,29 +184,39 @@ export const resultsSection = {
   eyebrow: "Real clients, real numbers",
   heading: "Not before/after filters. Before/after decisions.",
   sub: "A handful of the 1000+ people who did the daily work. Photos and names are shared only with a client's written consent.",
+  // matchId ties a case back to a symptomSelector option id, so a visitor's
+  // earlier pick can highlight the case that's actually relevant to them.
   cases: [
     {
+      matchId: "pcos",
       name: "Name withheld · verified client",
       tag: "PCOS · 8 months",
       result: "Regular cycles for the first time in 6 years, −14 kg",
+      stat: { value: 14, prefix: "−", suffix: " kg" },
       color: "ember",
     },
     {
+      matchId: "thyroid",
       name: "Name withheld · verified client",
       tag: "Thyroid · 5 months",
-      result: "TSH back in range, off two of three supplements",
+      result: "TSH normalized from 11.2 to 2.4, off two of three supplements",
+      stat: { value: 2.4, prefix: "", suffix: " TSH" },
       color: "moss",
     },
     {
+      matchId: "diabetes",
       name: "Name withheld · verified client",
       tag: "Type 2 Diabetes · 10 months",
       result: "HbA1c from 8.9 to 6.1, walking off metformin under doctor supervision",
+      stat: { value: 6.1, prefix: "", suffix: " HbA1c" },
       color: "clay",
     },
     {
+      matchId: "weight",
       name: "Name withheld · verified client",
       tag: "Weight loss · 6 months",
       result: "−22 kg, kept it off for a year and counting",
+      stat: { value: 22, prefix: "−", suffix: " kg" },
       color: "ember",
     },
   ],

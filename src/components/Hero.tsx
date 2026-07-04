@@ -8,6 +8,24 @@ import Magnetic from "./Magnetic";
 
 const HeroScene = lazy(() => import("./three/HeroScene"));
 
+const wordVariants = {
+  hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } },
+};
+
+const line1Container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.15 } },
+};
+
+// Line 2 waits until line 1 has fully resolved, plus a deliberate beat of
+// silence — the setup ("your doctor gets 7 minutes") has to land before the
+// payoff arrives, rather than both fading in together like everything else.
+const line2Container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 1.35 } },
+};
+
 export default function Hero() {
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
@@ -22,7 +40,7 @@ export default function Hero() {
     <section id="top" ref={sectionRef} className="relative h-[160svh] bg-ink">
       {/* Sticky inner wrapper pins the 3D canvas while the headline/copy
           scrolls and fades past it, instead of both scrolling away together */}
-      <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden pt-24">
+      <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-36 sm:pt-40">
         <div className="absolute inset-0 -z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,106,57,0.16),transparent)]" />
           <Suspense fallback={null}>
@@ -46,22 +64,32 @@ export default function Hero() {
             {hero.eyebrow}
           </motion.p>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display max-w-5xl text-[clamp(2.6rem,7.2vw,6.2rem)] font-medium leading-[1.0] tracking-tight text-cream"
-          >
-            {hero.headlineTop}{" "}
-            <span className="text-gradient-ember italic">{hero.headlineHighlight}</span>
-            <br />
-            {hero.headlineBottom}
-          </motion.h1>
+          <h1 className="font-display max-w-5xl text-[clamp(2.6rem,7.2vw,6.2rem)] font-medium leading-[1.0] tracking-tight text-cream">
+            <motion.span variants={line1Container} initial="hidden" animate="show" className="block">
+              {hero.headlineTop.split(" ").map((word, i) => (
+                <motion.span key={i} variants={wordVariants} className="inline-block">
+                  {word}
+                  {i < hero.headlineTop.split(" ").length - 1 ? " " : " "}
+                </motion.span>
+              ))}
+              <motion.span variants={wordVariants} className="text-gradient-ember inline-block italic">
+                {hero.headlineHighlight}
+              </motion.span>
+            </motion.span>
+            <motion.span variants={line2Container} initial="hidden" animate="show" className="block">
+              {hero.headlineBottom.split(" ").map((word, i) => (
+                <motion.span key={i} variants={wordVariants} className="inline-block">
+                  {word}
+                  {i < hero.headlineBottom.split(" ").length - 1 ? " " : ""}
+                </motion.span>
+              ))}
+            </motion.span>
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.22 }}
+            transition={{ duration: 0.7, delay: 2.3 }}
             className="max-w-xl text-lg leading-relaxed text-cream-dim"
           >
             {hero.sub}
@@ -70,7 +98,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.32 }}
+            transition={{ duration: 0.7, delay: 2.5 }}
             className="pointer-events-auto mt-2 flex flex-wrap items-center gap-4"
           >
             <Magnetic>
@@ -93,7 +121,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
+            transition={{ duration: 0.7, delay: 2.7 }}
             className="pointer-events-auto mt-10 flex max-w-xl flex-wrap gap-x-10 gap-y-4 border-t border-cream/10 pt-6"
           >
             {[hero.stat1, hero.stat2, hero.stat3].map((stat) => (

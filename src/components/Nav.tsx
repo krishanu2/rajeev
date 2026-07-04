@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { nav } from "../data/content";
+import Magnetic from "./Magnetic";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -23,28 +24,34 @@ export default function Nav() {
       }`}
     >
       <div className="container-px mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 py-4">
-        <a href="#top" className="shrink-0 font-display text-xl font-medium tracking-tight text-cream">
-          Rajeev<span className="text-ember">.</span>HB
+        <a href="#top" className="group shrink-0 font-display text-xl font-medium tracking-tight text-cream">
+          Rajeev<span className="text-ember transition-colors group-hover:text-ember-light">.</span>HB
         </a>
 
-        <nav className="hidden min-w-0 items-center gap-7 lg:flex xl:gap-9">
-          {nav.map((item) => (
+        <nav className="hidden min-w-0 items-center gap-6 lg:flex xl:gap-8">
+          {nav.map((item, i) => (
             <a
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap text-sm text-cream-dim transition-colors hover:text-cream"
+              className="group relative flex items-baseline gap-1.5 whitespace-nowrap py-2 text-sm text-cream-dim transition-colors hover:text-cream"
             >
+              <span className="font-data text-[0.6rem] text-ember/60 transition-colors group-hover:text-ember">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               {item.label}
+              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-ember transition-transform duration-300 group-hover:scale-x-100" />
             </a>
           ))}
         </nav>
 
-        <a
-          href="#book"
-          className="hidden shrink-0 rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-ink transition-transform hover:scale-105 lg:inline-block"
-        >
-          Book a Call
-        </a>
+        <Magnetic strength={0.25} className="hidden lg:inline-block">
+          <a
+            href="#book"
+            className="rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-ink transition-transform hover:scale-105"
+          >
+            Book a Call
+          </a>
+        </Magnetic>
 
         <button
           aria-label="Toggle menu"
@@ -65,13 +72,14 @@ export default function Nav() {
             className="overflow-hidden border-t border-cream/10 bg-ink lg:hidden"
           >
             <div className="container-px flex flex-col gap-1 py-4">
-              {nav.map((item) => (
+              {nav.map((item, i) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="py-3 text-base text-cream-dim transition-colors hover:text-cream"
+                  className="flex items-baseline gap-2 py-3 text-base text-cream-dim transition-colors hover:text-cream"
                 >
+                  <span className="font-data text-xs text-ember/60">{String(i + 1).padStart(2, "0")}</span>
                   {item.label}
                 </a>
               ))}

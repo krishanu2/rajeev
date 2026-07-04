@@ -1,8 +1,8 @@
-import { useState } from "react";
 import type { ComponentType } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Activity, ArrowRight, Droplet, HeartPulse, Scale, Sparkles } from "lucide-react";
 import { symptomSelector } from "../data/content";
+import { useSelection } from "../context/SelectionContext";
 import Reveal from "./Reveal";
 
 const icons: Record<string, ComponentType<{ size?: number; className?: string }>> = {
@@ -14,8 +14,8 @@ const icons: Record<string, ComponentType<{ size?: number; className?: string }>
 };
 
 export default function SymptomSelector() {
-  const [active, setActive] = useState<string | null>(null);
-  const activeOption = symptomSelector.options.find((o) => o.id === active);
+  const { selectedId, select } = useSelection();
+  const activeOption = symptomSelector.options.find((o) => o.id === selectedId);
 
   return (
     <section className="relative bg-ink-soft py-24 md:py-32">
@@ -28,16 +28,29 @@ export default function SymptomSelector() {
           <p className="mx-auto mt-4 max-w-lg text-cream-dim">{symptomSelector.sub}</p>
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-10 flex flex-wrap justify-center gap-3">
+        <Reveal delay={0.1} className="relative mt-10 flex flex-wrap justify-center gap-3">
+          {/* Warm spotlight that fades in behind the chosen option, and the
+              rest of the row dims — reinforces "this is now about you" */}
+          {selectedId && (
+            <motion.div
+              layoutId="segmenter-spotlight"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="pointer-events-none absolute inset-x-0 -inset-y-6 -z-10 bg-[radial-gradient(ellipse_50%_80%_at_50%_50%,rgba(255,176,138,0.1),transparent_70%)]"
+            />
+          )}
           {symptomSelector.options.map((opt) => {
             const Icon = icons[opt.id];
-            const isActive = active === opt.id;
+            const isActive = selectedId === opt.id;
+            const dimmed = selectedId !== null && !isActive;
             return (
-              <button
+              <motion.button
                 key={opt.id}
                 type="button"
-                onClick={() => setActive(opt.id)}
-                className={`flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium transition-all ${
+                onClick={() => select(opt.id, opt.label)}
+                animate={{ opacity: dimmed ? 0.35 : 1, scale: dimmed ? 0.96 : 1 }}
+                transition={{ duration: 0.4 }}
+                className={`flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium transition-colors ${
                   isActive
                     ? "border-ember bg-ember text-ink"
                     : "border-cream/20 text-cream-dim hover:border-cream/50 hover:text-cream"
@@ -45,7 +58,7 @@ export default function SymptomSelector() {
               >
                 <Icon size={16} />
                 {opt.label}
-              </button>
+              </motion.button>
             );
           })}
         </Reveal>

@@ -3,6 +3,7 @@
 @theme {
   --font-display: "Fraunces", "Georgia", serif;
   --font-sans: "General Sans", "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 
   --color-ink: #100e0b;
   --color-ink-soft: #17140f;
@@ -41,6 +42,12 @@
     70% { transform: translate(0%, 5%); }
     80% { transform: translate(-3%, 0%); }
     90% { transform: translate(4%, 2%); }
+  }
+
+  --animate-waveform: waveform 1.1s ease-in-out infinite;
+  @keyframes waveform {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
   }
 }
 
@@ -116,4 +123,29 @@ body {
   text-transform: uppercase;
   font-size: 0.72rem;
   color: var(--color-ember);
+}
+
+.font-data {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1;
+}
+
+/* Beat atmosphere textures — local (not fixed), scoped to one zone of the
+   page so temperature/texture shifts as the visitor scrolls through it. */
+.grain-local {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.lab-grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(198, 224, 235, 0.05) 0px, rgba(198, 224, 235, 0.05) 1px, transparent 1px, transparent 32px),
+    repeating-linear-gradient(90deg, rgba(198, 224, 235, 0.05) 0px, rgba(198, 224, 235, 0.05) 1px, transparent 1px, transparent 32px);
 }

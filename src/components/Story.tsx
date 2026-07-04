@@ -56,16 +56,20 @@ export default function Story() {
           </h3>
         </Reveal>
 
+        {/* Asymmetric weight: the default system reads dense, dark and
+            cramped; working-with-me reads lighter and more spacious — the
+            physical feel of the two columns argues the point before the
+            words do. */}
         <div className="mt-10 grid gap-4 md:grid-cols-2">
           <Reveal delay={0.05}>
-            <div className="h-full rounded-2xl border border-cream/10 bg-ink/40 p-7">
-              <p className="text-xs font-semibold uppercase tracking-widest text-cream-dim">
+            <div className="h-full rounded-xl border border-cream/15 bg-black/40 p-6 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)]">
+              <p className="font-data text-[0.65rem] font-semibold uppercase tracking-widest text-cream-dim/70">
                 {comparison.left.label}
               </p>
-              <ul className="mt-5 flex flex-col gap-3.5">
+              <ul className="mt-4 flex flex-col gap-2.5">
                 {comparison.left.points.map((point) => (
-                  <li key={point} className="flex items-start gap-3 text-[0.95rem] text-cream-dim">
-                    <X size={16} className="mt-0.5 shrink-0 text-cream-dim/50" />
+                  <li key={point} className="flex items-start gap-2.5 text-sm leading-snug text-cream-dim/80">
+                    <X size={14} className="mt-0.5 shrink-0 text-cream-dim/40" />
                     {point}
                   </li>
                 ))}
@@ -74,14 +78,14 @@ export default function Story() {
           </Reveal>
 
           <Reveal delay={0.15}>
-            <div className="h-full rounded-2xl border border-ember/30 bg-ember/[0.06] p-7">
-              <p className="text-xs font-semibold uppercase tracking-widest text-ember">
+            <div className="h-full rounded-3xl border border-ember/30 bg-ember/[0.07] p-9 shadow-[0_0_50px_-12px_rgba(255,106,57,0.3)]">
+              <p className="text-sm font-semibold uppercase tracking-widest text-ember">
                 {comparison.right.label}
               </p>
-              <ul className="mt-5 flex flex-col gap-3.5">
+              <ul className="mt-6 flex flex-col gap-5">
                 {comparison.right.points.map((point) => (
-                  <li key={point} className="flex items-start gap-3 text-[0.95rem] text-cream">
-                    <Check size={16} className="mt-0.5 shrink-0 text-ember" />
+                  <li key={point} className="flex items-start gap-3 text-base leading-relaxed text-cream">
+                    <Check size={17} className="mt-0.5 shrink-0 text-ember" />
                     {point}
                   </li>
                 ))}
