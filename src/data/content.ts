@@ -149,6 +149,16 @@ export const hero = {
   stat3: { value: "0", label: "magic pills sold" },
 };
 
+// Scroll-scrubbed confrontation moment — each line takes over the full
+// screen as the user scrolls through it, one at a time. This is the one
+// section deliberately built to feel unlike everything else on the page.
+export const manifesto = [
+  "Everyone will tell you to ‘eat clean.’",
+  "Almost no one will tell you how — for the next 200 days straight.",
+  "That gap is where most people quit.",
+  "It’s also exactly where I show up.",
+];
+
 export const story = {
   eyebrow: "Why I do this",
   heading: "I didn't start as a coach. I started as someone who needed one.",
@@ -224,24 +234,30 @@ export const programs = {
   eyebrow: "What working together looks like",
   heading: "Coaching, not content.",
   sub: "Every program starts with a consultation call — no generic PDF, no one-size-fits-all plan.",
+  // The first item is the flagship — most people should start here, so it's
+  // deliberately presented larger/highlighted rather than as one of three
+  // equal options (three equal choices flattens decision-making).
   items: [
     {
       title: "1:1 Transformation Coaching",
       description:
         "Personal daily coaching for PCOS, thyroid, diabetes and weight — nutrition, sleep, and stress systems built around your real schedule.",
       bullets: ["Weekly check-ins", "Direct chat access", "Reports reviewed personally"],
+      featured: true,
     },
     {
       title: "Metabolic Reset",
       description:
         "A focused program for stubborn weight and blood-sugar issues where the basics haven't worked — built around habit sequencing, not restriction.",
-      bullets: ["8–12 week structure", "Lab-informed adjustments", "Built for sustainability, not speed"],
+      bullets: ["8–12 week structure", "Lab-informed adjustments"],
+      featured: false,
     },
     {
       title: "Women's Hormonal Health Track",
       description:
         "Coaching specifically for PCOS and thyroid clients, coordinated alongside your doctor — food, cycle tracking, stress and sleep as one system.",
-      bullets: ["Cycle-aware programming", "Works alongside your endocrinologist", "No extreme diets"],
+      bullets: ["Cycle-aware programming", "Works alongside your endocrinologist"],
+      featured: false,
     },
   ],
 };

@@ -31,7 +31,7 @@ export default function CTA() {
       <div className="container-px relative mx-auto max-w-4xl text-center">
         <Reveal>
           <p className="section-eyebrow">{cta.eyebrow}</p>
-          <h2 className="font-display mt-4 text-[clamp(2.2rem,5vw,3.6rem)] leading-[1.05] text-cream">
+          <h2 className="font-display mt-4 text-[clamp(2.2rem,4.5vw,3.4rem)] leading-[1.05] text-cream">
             {cta.heading}
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg text-cream-dim">{cta.sub}</p>

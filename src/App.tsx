@@ -2,6 +2,7 @@ import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import SymptomSelector from "./components/SymptomSelector";
 import About from "./components/About";
+import Manifesto from "./components/Manifesto";
 import Story from "./components/Story";
 import Results from "./components/Results";
 import Testimonials from "./components/Testimonials";
@@ -24,6 +25,7 @@ export default function App() {
         <Hero />
         <SymptomSelector />
         <About />
+        <Manifesto />
         <Story />
         <Results />
         <Testimonials />

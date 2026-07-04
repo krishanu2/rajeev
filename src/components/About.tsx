@@ -33,7 +33,7 @@ export default function About() {
         <div>
           <Reveal>
             <p className="section-eyebrow">{about.eyebrow}</p>
-            <h2 className="font-display mt-4 text-[clamp(2.1rem,4.5vw,3.6rem)] text-cream">{about.heading}</h2>
+            <h2 className="font-display mt-4 text-[clamp(1.8rem,3.2vw,2.6rem)] text-cream">{about.heading}</h2>
           </Reveal>
 
           <div className="mt-6 flex flex-col gap-4">

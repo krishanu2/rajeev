@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Quote, UserRound } from "lucide-react";
 import { testimonials } from "../data/content";
 import Reveal from "./Reveal";
@@ -5,40 +7,70 @@ import Reveal from "./Reveal";
 const avatarPalette = ["bg-ember/25 ring-ember/40", "bg-moss-light/25 ring-moss-light/40", "bg-clay/25 ring-clay/40"];
 
 export default function Testimonials() {
-  return (
-    <section className="relative overflow-hidden bg-ink-soft py-28 md:py-36">
-      <div className="container-px mx-auto max-w-6xl">
-        <Reveal className="max-w-xl">
-          <p className="section-eyebrow">In their words</p>
-          <h2 className="font-display mt-4 text-[clamp(2.1rem,4.5vw,3.6rem)] leading-[1.1] text-cream">
-            People who did the work, talking about it.
-          </h2>
-        </Reveal>
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <Reveal key={t.name + i} delay={i * 0.1}>
-              <div className="flex h-full flex-col justify-between rounded-2xl border border-cream/10 bg-ink p-7">
-                <div>
-                  <Quote className="text-ember" size={26} strokeWidth={1.5} />
-                  <p className="mt-4 text-[1.05rem] leading-relaxed text-cream">{t.quote}</p>
-                </div>
-                <div className="mt-8 flex items-center gap-3 border-t border-cream/10 pt-4">
-                  <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ring-1 ${avatarPalette[i % avatarPalette.length]}`}
-                    title="Client photo placeholder"
-                  >
-                    <UserRound size={18} className="text-cream" strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-cream">{t.name}</p>
-                    <p className="text-xs text-cream-dim">{t.detail}</p>
-                  </div>
-                </div>
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setActive((v) => (v + 1) % testimonials.length), 6000);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const t = testimonials[active];
+
+  return (
+    <section
+      className="relative overflow-hidden bg-ink-soft py-28 md:py-40"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <p className="section-eyebrow absolute left-1/2 top-16 -translate-x-1/2 text-center md:top-20">
+        In their words
+      </p>
+
+      <div className="container-px relative mx-auto flex min-h-[22rem] max-w-4xl flex-col items-center justify-center text-center">
+        <Quote className="text-ember/50" size={40} strokeWidth={1.2} />
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -18 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6"
+          >
+            <p className="font-display text-[clamp(1.5rem,3.6vw,2.4rem)] leading-[1.35] text-cream">
+              {t.quote}
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3">
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-full ring-1 ${avatarPalette[active % avatarPalette.length]}`}
+                title="Client photo placeholder"
+              >
+                <UserRound size={20} className="text-cream" strokeWidth={1.5} />
               </div>
-            </Reveal>
+              <div>
+                <p className="text-sm font-semibold text-cream">{t.name}</p>
+                <p className="text-xs text-cream-dim">{t.detail}</p>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <Reveal delay={0.2} className="mt-10 flex items-center gap-2.5">
+          {testimonials.map((item, i) => (
+            <button
+              key={item.name + i}
+              type="button"
+              aria-label={`Show testimonial ${i + 1}`}
+              onClick={() => setActive(i)}
+              className={`h-1.5 rounded-full transition-all ${
+                i === active ? "w-7 bg-ember" : "w-1.5 bg-cream/25 hover:bg-cream/50"
+              }`}
+            />
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

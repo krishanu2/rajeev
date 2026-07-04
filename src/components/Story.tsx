@@ -27,7 +27,7 @@ export default function Story() {
       <div className="container-px relative mx-auto grid max-w-6xl gap-16 md:grid-cols-[0.9fr_1.1fr]">
         <Reveal>
           <p className="section-eyebrow">{story.eyebrow}</p>
-          <h2 className="font-display mt-4 text-[clamp(2.1rem,4.5vw,3.6rem)] leading-[1.1] text-cream">
+          <h2 className="font-display mt-4 text-[clamp(1.9rem,3.4vw,2.8rem)] leading-[1.1] text-cream">
             {story.heading}
           </h2>
 
