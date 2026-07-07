@@ -10,13 +10,15 @@
   --color-cream: #f6f0e6;
   --color-cream-dim: #cfc6b8;
 
-  --color-ember: #ff6a39;
-  --color-ember-dark: #d94f22;
-  --color-ember-light: #ffb08a;
+  /* FWR brand: gold / black / white — "ember" naming kept internally so
+     every existing bg-ember/text-ember/etc. class retints automatically */
+  --color-ember: #f0b429;
+  --color-ember-dark: #b8860b;
+  --color-ember-light: #fde68a;
 
   --color-moss: #4d5c3a;
   --color-moss-light: #8ca377;
-  --color-clay: #c97b5b;
+  --color-clay: #9a6b1f;
 
   --animate-float: float 7s ease-in-out infinite;
   --animate-float-slow: float 11s ease-in-out infinite;

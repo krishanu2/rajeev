@@ -30,7 +30,7 @@ export default function IntroOverlay() {
               transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="font-display text-2xl tracking-tight text-cream"
             >
-              Rajeev<span className="text-ember">.</span>HB
+              FWR<span className="text-ember">.</span>
             </motion.p>
             <motion.div
               initial={{ scaleX: 0 }}

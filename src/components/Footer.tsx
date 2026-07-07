@@ -8,8 +8,9 @@ export default function Footer() {
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="max-w-sm">
             <p className="font-display text-xl text-cream">
-              Rajeev<span className="text-ember">.</span>HB
+              FWR<span className="text-ember">.</span>
             </p>
+            <p className="font-data text-[0.65rem] uppercase tracking-[0.2em] text-cream-dim/60">{site.fullName}</p>
             <p className="mt-3 text-sm leading-relaxed text-cream-dim">{footer.note}</p>
           </div>
 

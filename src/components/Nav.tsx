@@ -25,7 +25,7 @@ export default function Nav() {
     >
       <div className="container-px mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 py-4">
         <a href="#top" className="group shrink-0 font-display text-xl font-medium tracking-tight text-cream">
-          Rajeev<span className="text-ember transition-colors group-hover:text-ember-light">.</span>HB
+          FWR<span className="text-ember transition-colors group-hover:text-ember-light">.</span>
         </a>
 
         <nav className="hidden min-w-0 items-center gap-6 lg:flex xl:gap-8">

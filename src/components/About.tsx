@@ -1,5 +1,5 @@
-import { UserRound } from "lucide-react";
 import { about } from "../data/content";
+import portrait from "../assets/rajeev-portrait.jpg";
 import Reveal from "./Reveal";
 import TiltCard from "./TiltCard";
 
@@ -14,14 +14,13 @@ export default function About() {
             <div className="animate-float-slow absolute -inset-3 rounded-[2rem] border border-ember/25" />
             <div className="absolute -inset-6 rounded-[2.5rem] border border-cream/10" />
 
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-cream/10 bg-gradient-to-br from-ember/25 via-ink-soft to-ink-soft">
-              {/* [[Swap for Rajeev's real portrait once supplied — e.g. src/assets/rajeev-portrait.jpg]] */}
-              <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-cream/50">
-                <UserRound size={48} strokeWidth={1.1} />
-                <p className="px-6 text-center text-xs uppercase tracking-widest">
-                  Rajeev's photo goes here
-                </p>
-              </div>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-cream/10 bg-ink-soft">
+              <img
+                src={portrait}
+                alt="Rajeev, founder of FWR"
+                className="h-full w-full object-cover object-top"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
             </div>
 
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-cream/10 bg-ink-soft px-5 py-2.5 text-xs font-semibold text-cream shadow-xl">

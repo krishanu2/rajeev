@@ -3,7 +3,8 @@
 // that must be replaced with real client material before launch.
 
 export const site = {
-  name: "Rajeev HB",
+  name: "FWR",
+  fullName: "Fit with Rajeev",
   tagline: "Coach. Not a prescription.",
   calendlyUrl: "https://calendly.com/rajeevhb/consultation", // [[replace with real Calendly link]]
   // Flip to true once calendlyUrl above is a real, working link — until then
