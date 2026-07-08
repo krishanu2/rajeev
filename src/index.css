@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Fraunces", "Georgia", serif;
+  /* Headings/subheadings: Cabinet Grotesk. Body/buttons: Aktiv Grotesk is
+     specified but is a paid font with no free CDN — General Sans stands in
+     until a licensed source is supplied. */
+  --font-display: "Cabinet Grotesk", "General Sans", sans-serif;
   --font-sans: "General Sans", "Inter", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 
