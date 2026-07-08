@@ -14,7 +14,7 @@ export const site = {
   instagramUrl: "https://instagram.com/rajeevhb", // [[confirm handle]]
   podcastUrl: "#", // [[link to podcast/series]]
   funWithFitnessUrl: "#", // [[link to Fun with Fitness IG/page]]
-  email: "hello@rajeevhb.com", // [[confirm contact email]]
+  email: "rajeevhb.91@gmail.com",
   phone: "+91 90000 00000", // [[confirm contact number]]
   city: "Bengaluru, India",
 };

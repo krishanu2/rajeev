@@ -15,10 +15,10 @@ export default function CountingStat({
   const { ref, value: animated } = useCountUp(value, 1200, decimals);
 
   return (
-    <span ref={ref} className={`font-data tabular-nums ${className ?? ""}`}>
+    <span ref={ref} className={`font-data tabular-nums tracking-tight ${className ?? ""}`}>
       {prefix}
       {decimals ? animated.toFixed(1) : animated}
-      {suffix}
+      <span className="text-[0.65em] tracking-normal">{suffix}</span>
     </span>
   );
 }
