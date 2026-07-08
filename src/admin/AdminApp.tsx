@@ -39,6 +39,12 @@ function todayIso() {
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+// All 48 half-hour slots (IST) — mirrors SLOT_TIMES on the server.
+const ALL_TIMES: string[] = [];
+for (let h = 0; h < 24; h++) {
+  ALL_TIMES.push(`${String(h).padStart(2, "0")}:00`, `${String(h).padStart(2, "0")}:30`);
+}
+
 export default function AdminApp() {
   const [key, setKey] = useState(() => sessionStorage.getItem("admin-key") || "");
   const [input, setInput] = useState("");
@@ -51,6 +57,8 @@ export default function AdminApp() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [week, setWeek] = useState<WeekDay[]>([]);
   const [loading, setLoading] = useState(false);
+  const [rangeFrom, setRangeFrom] = useState("00:00");
+  const [rangeTo, setRangeTo] = useState("08:30");
 
   // Clients state
   const [clients, setClients] = useState<Client[]>([]);
@@ -133,12 +141,12 @@ export default function AdminApp() {
     loadClients(input);
   };
 
-  const act = async (action: string, time?: string) => {
+  const act = async (action: string, extra: Record<string, string> = {}) => {
     const k = key || "testing";
     await fetch("/api/admin/action", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...headers(k) },
-      body: JSON.stringify({ action, date, time }),
+      body: JSON.stringify({ action, date, ...extra }),
     });
     loadDay(date, k);
     loadWeek(k);
@@ -282,6 +290,43 @@ export default function AdminApp() {
               </div>
             </div>
 
+            <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-cream/10 bg-ink-soft p-3">
+              <span className="text-xs text-cream-dim">Range (IST)</span>
+              <select
+                value={rangeFrom}
+                onChange={(e) => setRangeFrom(e.target.value)}
+                className="rounded-lg border border-cream/15 bg-ink px-2 py-1.5 font-data text-xs text-cream"
+              >
+                {ALL_TIMES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+              <span className="text-xs text-cream-dim">to</span>
+              <select
+                value={rangeTo}
+                onChange={(e) => setRangeTo(e.target.value)}
+                className="rounded-lg border border-cream/15 bg-ink px-2 py-1.5 font-data text-xs text-cream"
+              >
+                {ALL_TIMES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+              <div className="ml-auto flex gap-2">
+                <button
+                  onClick={() => rangeFrom <= rangeTo && act("block-range", { from: rangeFrom, to: rangeTo })}
+                  className="rounded-full border border-cream/15 px-4 py-1.5 text-xs font-semibold text-cream-dim hover:border-cream/40 hover:text-cream"
+                >
+                  Block range
+                </button>
+                <button
+                  onClick={() => rangeFrom <= rangeTo && act("unblock-range", { from: rangeFrom, to: rangeTo })}
+                  className="rounded-full border border-ember/40 px-4 py-1.5 text-xs font-semibold text-ember hover:border-ember"
+                >
+                  Open range
+                </button>
+              </div>
+            </div>
+
             {loading ? (
               <p className="mt-6 text-cream-dim">Loading…</p>
             ) : (
@@ -315,7 +360,7 @@ export default function AdminApp() {
                           </a>
                         )}
                         <button
-                          onClick={() => act("cancel", s.time)}
+                          onClick={() => act("cancel", { time: s.time })}
                           className="mt-2 text-xs font-semibold text-red-400 underline"
                         >
                           Cancel
@@ -324,7 +369,7 @@ export default function AdminApp() {
                     )}
                     {s.status === "open" && (
                       <button
-                        onClick={() => act("block", s.time)}
+                        onClick={() => act("block", { time: s.time })}
                         className="mt-2 text-xs font-semibold text-cream-dim underline"
                       >
                         Block
@@ -332,7 +377,7 @@ export default function AdminApp() {
                     )}
                     {s.status === "blocked" && (
                       <button
-                        onClick={() => act("unblock", s.time)}
+                        onClick={() => act("unblock", { time: s.time })}
                         className="mt-2 text-xs font-semibold text-ember underline"
                       >
                         Unblock

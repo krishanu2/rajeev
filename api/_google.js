@@ -39,9 +39,9 @@ export async function createMeetEvent({ date, time, name, contact, focus }) {
   const accessToken = await getAccessToken();
   if (!accessToken) return null;
 
-  const [h, m] = time.split(":").map(Number);
-  const start = new Date(`${date}T00:00:00`);
-  start.setHours(h, m, 0, 0);
+  // Slot times are IST wall-clock; anchor to +05:30 explicitly so the event
+  // lands at the right instant even though the server itself runs in UTC.
+  const start = new Date(`${date}T${time}:00+05:30`);
   const end = new Date(start.getTime() + 30 * 60 * 1000);
 
   const attendees = [];

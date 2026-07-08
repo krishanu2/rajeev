@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useSelection } from "../context/SelectionContext";
 
-type Slot = { time: string; status: "open" | "blocked" | "booked" };
+type Slot = { time: string; status: "open" | "blocked" | "booked" | "past" };
 
 function toIso(d: Date) {
   const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -57,7 +57,9 @@ export default function BookingWidget() {
   const canGoPrev = new Date(viewYear, viewMonth, 1) > today;
   const canGoNext = new Date(viewYear, viewMonth + 1, 1) <= maxDate;
 
-  const isDisabled = (d: Date) => d < today || d.getDay() === 0 || d > maxDate;
+  // Which days/times are actually offered is Rajeev's call via the admin
+  // block tools — the widget only rules out the past and the far future.
+  const isDisabled = (d: Date) => d < today || d > maxDate;
 
   const selectDate = (d: Date) => {
     if (isDisabled(d)) return;
@@ -110,7 +112,7 @@ export default function BookingWidget() {
         <Check className="mx-auto text-ember" size={32} />
         <p className="font-display mt-4 text-xl text-cream">You're booked.</p>
         <p className="mt-2 text-sm text-cream-dim">
-          {selectedDate} at {picked} — I'll see you then.
+          {selectedDate} at {picked} IST — I'll see you then.
         </p>
         {meetLink ? (
           <>
@@ -203,15 +205,17 @@ export default function BookingWidget() {
             className="overflow-hidden"
           >
             <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-cream-dim">
-              Available times · {selectedDate}
+              Available times · {selectedDate} <span className="text-cream-dim/50">· IST</span>
             </p>
             {loading ? (
               <div className="mt-4 flex justify-center py-6">
                 <Loader2 className="animate-spin text-cream-dim" size={22} />
               </div>
+            ) : slots.every((s) => s.status === "past") ? (
+              <p className="mt-4 text-sm text-cream-dim">No times left on this day — pick another date.</p>
             ) : (
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {slots.map((s) => (
+              <div className="mt-3 grid max-h-72 grid-cols-4 gap-2 overflow-y-auto pr-1">
+                {slots.filter((s) => s.status !== "past").map((s) => (
                   <button
                     key={s.time}
                     disabled={s.status !== "open"}

@@ -7,9 +7,9 @@ function fmtUtc(d) {
 }
 
 function slotTimes(date, time) {
-  const [h, m] = time.split(":").map(Number);
-  const start = new Date(date);
-  start.setUTCHours(h, m, 0, 0);
+  // Slot times are IST wall-clock (+05:30 fixed, no DST) — the ICS file and
+  // calendar link must carry the true instant, not a UTC misreading of it.
+  const start = new Date(`${date}T${time}:00+05:30`);
   const end = new Date(start.getTime() + 30 * 60 * 1000);
   return { start, end };
 }

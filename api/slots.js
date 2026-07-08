@@ -1,4 +1,4 @@
-import { getPool, SLOT_TIMES } from "./_db.js";
+import { getPool, SLOT_TIMES, istNow } from "./_db.js";
 
 export default async (req, res) => {
   const date = req.query.date;
@@ -12,7 +12,16 @@ export default async (req, res) => {
       [date]
     );
     const taken = new Map(rows.map((r) => [r.slot_time.slice(0, 5), r.status]));
-    const slots = SLOT_TIMES.map((time) => ({ time, status: taken.get(time) || "open" }));
+    // Slots that have already started (IST) are reported as "past" so the
+    // widget can't offer a time that the booking endpoint would then reject.
+    const now = istNow();
+    const slots = SLOT_TIMES.map((time) => {
+      const status = taken.get(time) || "open";
+      if (status === "open" && (date < now.date || (date === now.date && time <= now.time))) {
+        return { time, status: "past" };
+      }
+      return { time, status };
+    });
     res.status(200).json({ date, slots });
   } catch (err) {
     res.status(500).json({ error: "server error" });

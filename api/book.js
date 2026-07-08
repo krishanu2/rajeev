@@ -1,4 +1,4 @@
-import { getPool, SLOT_TIMES } from "./_db.js";
+import { getPool, SLOT_TIMES, slotInstant } from "./_db.js";
 import { buildIcs, googleCalendarLink, looksLikeEmail, sendEmail } from "./_email.js";
 import { createMeetEvent } from "./_google.js";
 import { syncClientsToSheet } from "./_sheets.js";
@@ -13,7 +13,9 @@ export default async (req, res) => {
     res.status(400).json({ error: "date, time, name, contact required" });
     return;
   }
-  const slotDateTime = new Date(`${date}T${time}:00`);
+  // Slot times are IST wall-clock — compare against the absolute instant so
+  // this check is correct no matter what timezone the server runs in.
+  const slotDateTime = slotInstant(date, time);
   if (Number.isNaN(slotDateTime.getTime()) || slotDateTime < new Date()) {
     res.status(400).json({ error: "slot is in the past" });
     return;

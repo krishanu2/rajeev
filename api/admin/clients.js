@@ -55,7 +55,8 @@ export default async (req, res) => {
          (select count(*) from clients where first_seen > now() - interval '30 days') as new_this_month,
          (select count(*) from slot_events
            where status = 'booked'
-             and slot_date between current_date and current_date + 6) as calls_next_7_days`
+             and slot_date between (now() at time zone 'Asia/Kolkata')::date
+                               and (now() at time zone 'Asia/Kolkata')::date + 6) as calls_next_7_days`
     );
 
     res.status(200).json({
