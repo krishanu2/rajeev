@@ -12,14 +12,14 @@ export default async (req, res) => {
   }
   try {
     const { rows } = await getPool().query(
-      "select slot_time, status, name, contact from slot_events where slot_date = $1",
+      "select slot_time, status, name, contact, meet_link from slot_events where slot_date = $1",
       [date]
     );
     const byTime = new Map(rows.map((r) => [r.slot_time.slice(0, 5), r]));
     const slots = SLOT_TIMES.map((time) => {
       const row = byTime.get(time);
       return row
-        ? { time, status: row.status, name: row.name, contact: row.contact }
+        ? { time, status: row.status, name: row.name, contact: row.contact, meetLink: row.meet_link }
         : { time, status: "open" };
     });
     res.status(200).json({ date, slots });

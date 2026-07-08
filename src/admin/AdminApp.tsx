@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-type Slot = { time: string; status: "open" | "blocked" | "booked"; name?: string; contact?: string };
+type Slot = { time: string; status: "open" | "blocked" | "booked"; name?: string; contact?: string; meetLink?: string | null };
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -88,9 +88,11 @@ export default function AdminApp() {
       <div className="mx-auto max-w-3xl">
         <p className="font-display text-2xl">FWR Admin — Slot Manager</p>
         <p className="mt-2 text-sm text-cream-dim">
-          Subscribe Google Calendar to{" "}
-          <code className="font-data rounded bg-ink-soft px-1.5 py-0.5">{window.location.origin}/api/ics</code>{" "}
-          ("Other calendars" → "From URL") to see bookings there.
+          <a href="/api/auth/google" className="font-semibold text-ember underline">
+            Connect Google Calendar
+          </a>{" "}
+          once (log in as the calendar that should host calls) — new bookings will then get a
+          real Meet link and Google will email invites automatically.
         </p>
 
         <input
@@ -121,6 +123,16 @@ export default function AdminApp() {
                   <>
                     <p className="mt-2 text-xs text-cream">{s.name}</p>
                     <p className="text-xs text-cream-dim">{s.contact}</p>
+                    {s.meetLink && (
+                      <a
+                        href={s.meetLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1 block text-xs font-semibold text-ember underline"
+                      >
+                        Meet link
+                      </a>
+                    )}
                     <button
                       onClick={() => act("cancel", s.time)}
                       className="mt-2 text-xs font-semibold text-red-400 underline"

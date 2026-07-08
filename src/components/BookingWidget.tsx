@@ -47,6 +47,7 @@ export default function BookingWidget() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [meetLink, setMeetLink] = useState<string | null>(null);
 
   const cells = useMemo(() => buildMonth(viewYear, viewMonth), [viewYear, viewMonth]);
   const canGoPrev = new Date(viewYear, viewMonth, 1) > today;
@@ -88,6 +89,8 @@ export default function BookingWidget() {
       } else if (!res.ok) {
         setError("Something went wrong. Please try again.");
       } else {
+        const data = await res.json().catch(() => ({}));
+        setMeetLink(data.meetLink || null);
         setDone(true);
       }
     } catch {
@@ -105,6 +108,21 @@ export default function BookingWidget() {
         <p className="mt-2 text-sm text-cream-dim">
           {selectedDate} at {picked} — I'll see you then.
         </p>
+        {meetLink ? (
+          <>
+            <a
+              href={meetLink}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-105 active:scale-[0.97]"
+            >
+              Google Meet link
+            </a>
+            <p className="mt-3 text-xs text-cream-dim/60">A calendar invite with this link is on its way to your email.</p>
+          </>
+        ) : (
+          <p className="mt-4 text-xs text-cream-dim/60">A confirmation is on its way to your email.</p>
+        )}
       </div>
     );
   }
@@ -217,9 +235,10 @@ export default function BookingWidget() {
                   className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
                 />
                 <input
+                  type="email"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="Phone or email"
+                  placeholder="Your email (for the calendar invite)"
                   className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
                 />
                 {error && <p className="text-sm text-red-400">{error}</p>}
