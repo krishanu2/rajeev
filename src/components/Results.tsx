@@ -6,10 +6,13 @@ import { useSelection } from "../context/SelectionContext";
 import CountingStat from "./CountingStat";
 import Reveal from "./Reveal";
 
+// All variants stay within the gold/black/white brand system — shades of
+// the same accent rather than competing hues, so the strip reads as one
+// classy palette instead of a rainbow of "variety" colors.
 const colorMap: Record<string, { wash: string; solid: string; ring: string }> = {
   ember: { wash: "from-ember/35 via-ember/15 to-ink-soft", solid: "bg-ember/25", ring: "ring-ember/40" },
-  moss: { wash: "from-moss-light/35 via-moss/15 to-ink-soft", solid: "bg-moss-light/25", ring: "ring-moss-light/40" },
-  clay: { wash: "from-clay/35 via-clay/15 to-ink-soft", solid: "bg-clay/25", ring: "ring-clay/40" },
+  moss: { wash: "from-ember-light/25 via-ember-dark/15 to-ink-soft", solid: "bg-ember-light/20", ring: "ring-ember-light/35" },
+  clay: { wash: "from-ember-dark/35 via-ember-dark/15 to-ink-soft", solid: "bg-ember-dark/25", ring: "ring-ember-dark/40" },
 };
 
 export default function Results() {
@@ -77,7 +80,7 @@ export default function Results() {
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
                   animate={{
                     scale: isMatch ? 1.03 : 1,
-                    borderColor: isMatch ? "rgba(255,106,57,0.6)" : "rgba(246,240,230,0.1)",
+                    borderColor: isMatch ? "rgba(240,180,41,0.6)" : "rgba(246,240,230,0.1)",
                   }}
                   className="group relative h-full w-[19rem] overflow-hidden rounded-2xl border bg-ink-soft select-none sm:w-[22rem]"
                 >

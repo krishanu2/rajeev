@@ -44,8 +44,8 @@ function CoreBlob({ reducedMotion }: { reducedMotion: boolean }) {
       <mesh ref={mesh}>
         <icosahedronGeometry args={[1.25, 6]} />
         <MeshDistortMaterial
-          color="#ff6a39"
-          emissive="#d94f22"
+          color="#f0b429"
+          emissive="#b8860b"
           emissiveIntensity={0.22}
           distort={0.48}
           speed={1.7}
@@ -67,17 +67,17 @@ function SatelliteShapes() {
     <group ref={group}>
       <Float speed={2} rotationIntensity={1} floatIntensity={2} position={[2.6, 1.1, -0.6]}>
         <Icosahedron args={[0.22, 0]}>
-          <meshStandardMaterial color="#8ca377" roughness={0.3} metalness={0.4} wireframe />
+          <meshStandardMaterial color="#f6f0e6" roughness={0.3} metalness={0.4} wireframe />
         </Icosahedron>
       </Float>
       <Float speed={1.6} rotationIntensity={1.2} floatIntensity={1.6} position={[-2.4, -0.8, 0.4]}>
         <Icosahedron args={[0.16, 0]}>
-          <meshStandardMaterial color="#ffb08a" roughness={0.2} metalness={0.5} />
+          <meshStandardMaterial color="#fde68a" roughness={0.2} metalness={0.5} />
         </Icosahedron>
       </Float>
       <Float speed={1.2} rotationIntensity={0.8} floatIntensity={1.4} position={[1.6, -1.4, 0.8]}>
         <Icosahedron args={[0.1, 0]}>
-          <meshStandardMaterial color="#c97b5b" roughness={0.4} />
+          <meshStandardMaterial color="#b8860b" roughness={0.4} />
         </Icosahedron>
       </Float>
     </group>
@@ -106,8 +106,9 @@ export default function HeroScene({ reducedMotion }: { reducedMotion: boolean })
       <ambientLight intensity={0.3} />
       {/* Key light — warm, strong, defines the lit face */}
       <pointLight position={[4, 3, 4]} intensity={34} color="#ff8a52" />
-      {/* Fill light — cool, dim, keeps shadow side from going pure black */}
-      <pointLight position={[-4, -2, -2]} intensity={10} color="#4d5c3a" />
+      {/* Fill light — neutral, dim, keeps shadow side from going pure black
+          without casting an off-brand color into it */}
+      <pointLight position={[-4, -2, -2]} intensity={10} color="#3a3428" />
       {/* Rim light — from behind, creates a visible edge highlight so the
           sphere reads as a lit 3D volume rather than a flat gradient disc */}
       <pointLight position={[-2, 2, -5]} intensity={26} color="#f6f0e6" />
@@ -116,8 +117,8 @@ export default function HeroScene({ reducedMotion }: { reducedMotion: boolean })
       <group position={[1.1, -0.1, 0]}>
         <CoreBlob reducedMotion={reducedMotion} />
         {!reducedMotion && <SatelliteShapes />}
-        <OrbitRing radius={1.85} speed={0.06} color="#ffb08a" tilt={1.15} />
-        <OrbitRing radius={2.25} speed={-0.04} color="#8ca377" tilt={1.4} />
+        <OrbitRing radius={1.85} speed={0.06} color="#fde68a" tilt={1.15} />
+        <OrbitRing radius={2.25} speed={-0.04} color="#f6f0e6" tilt={1.4} />
       </group>
       {!reducedMotion && <Sparkles count={60} scale={7} size={2} speed={0.25} color="#f6f0e6" opacity={0.35} />}
       {!reducedMotion && <PointerRig />}

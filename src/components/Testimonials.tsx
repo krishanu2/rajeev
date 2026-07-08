@@ -4,7 +4,7 @@ import { Quote, UserRound } from "lucide-react";
 import { testimonials } from "../data/content";
 import Reveal from "./Reveal";
 
-const avatarPalette = ["bg-ember/25 ring-ember/40", "bg-moss-light/25 ring-moss-light/40", "bg-clay/25 ring-clay/40"];
+const avatarPalette = ["bg-ember/25 ring-ember/40", "bg-cream/15 ring-cream/30", "bg-clay/25 ring-clay/40"];
 
 export default function Testimonials() {
   const [active, setActive] = useState(0);

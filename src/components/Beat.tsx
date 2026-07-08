@@ -22,7 +22,7 @@ const overlay: Record<BeatTone, ReactNode> = {
     </>
   ),
   invitation: (
-    <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_55%_at_50%_100%,rgba(255,176,138,0.14),transparent_70%)]" />
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_55%_at_50%_100%,rgba(253,230,138,0.14),transparent_70%)]" />
   ),
 };
 

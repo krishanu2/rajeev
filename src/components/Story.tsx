@@ -17,7 +17,7 @@ export default function Story() {
     <section id="philosophy" ref={sectionRef} className="relative overflow-hidden bg-ink-soft py-28 md:py-36">
       <motion.div
         style={{ y: orbY }}
-        className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-moss/20 blur-[100px]"
+        className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-ember-dark/15 blur-[100px]"
       />
       <motion.div
         style={{ y: orbY2 }}
@@ -78,7 +78,7 @@ export default function Story() {
           </Reveal>
 
           <Reveal delay={0.15}>
-            <div className="h-full rounded-3xl border border-ember/30 bg-ember/[0.07] p-9 shadow-[0_0_50px_-12px_rgba(255,106,57,0.3)]">
+            <div className="h-full rounded-3xl border border-ember/30 bg-ember/[0.07] p-9 shadow-[0_0_50px_-12px_rgba(240,180,41,0.3)]">
               <p className="text-sm font-semibold uppercase tracking-widest text-ember">
                 {comparison.right.label}
               </p>

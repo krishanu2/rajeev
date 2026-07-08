@@ -36,7 +36,7 @@ export default function SymptomSelector() {
               layoutId="segmenter-spotlight"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="pointer-events-none absolute inset-x-0 -inset-y-6 -z-10 bg-[radial-gradient(ellipse_50%_80%_at_50%_50%,rgba(255,176,138,0.1),transparent_70%)]"
+              className="pointer-events-none absolute inset-x-0 -inset-y-6 -z-10 bg-[radial-gradient(ellipse_50%_80%_at_50%_50%,rgba(253,230,138,0.1),transparent_70%)]"
             />
           )}
           {symptomSelector.options.map((opt) => {

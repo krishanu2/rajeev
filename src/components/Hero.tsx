@@ -42,7 +42,7 @@ export default function Hero() {
           scrolls and fades past it, instead of both scrolling away together */}
       <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-36 sm:pt-40">
         <div className="absolute inset-0 -z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,106,57,0.16),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(240,180,41,0.16),transparent)]" />
           <Suspense fallback={null}>
             <HeroScene reducedMotion={reducedMotion} />
           </Suspense>

@@ -53,7 +53,7 @@ export default function Manifesto() {
   return (
     <section ref={sectionRef} className="relative h-[220svh] bg-ink sm:h-[280svh]">
       <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_50%,rgba(255,106,57,0.08),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_50%,rgba(240,180,41,0.08),transparent)]" />
         {manifesto.map((line, i) => (
           <ManifestoLine
             key={line}

@@ -22,7 +22,7 @@ export default function Programs() {
             <motion.div
               whileHover={{ y: -6 }}
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-ember/40 bg-gradient-to-br from-ember/[0.08] via-ink-soft to-ink-soft p-9 shadow-[0_0_60px_-15px_rgba(255,106,57,0.25)]"
+              className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-ember/40 bg-gradient-to-br from-ember/[0.08] via-ink-soft to-ink-soft p-9 shadow-[0_0_60px_-15px_rgba(240,180,41,0.25)]"
             >
               <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-ember px-3 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-ink">
                 <Star size={11} fill="currentColor" />
@@ -62,7 +62,7 @@ export default function Programs() {
                   <ul className="mt-4 flex flex-col gap-1.5 border-t border-cream/10 pt-4">
                     {p.bullets.map((b) => (
                       <li key={b} className="flex items-center gap-2 text-xs text-cream-dim">
-                        <Check size={12} className="shrink-0 text-moss-light" />
+                        <Check size={12} className="shrink-0 text-ember-light" />
                         {b}
                       </li>
                     ))}
