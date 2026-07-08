@@ -119,7 +119,7 @@ export default function BookingWidget() {
             setViewMonth(m.getMonth());
           }}
           disabled={!canGoPrev}
-          className="rounded-full p-1.5 text-cream-dim transition-colors hover:text-cream disabled:opacity-20"
+          className="rounded-full p-1.5 text-cream-dim transition-[color,transform] hover:text-cream active:scale-90 disabled:opacity-20 disabled:active:scale-100"
           aria-label="Previous month"
         >
           <ChevronLeft size={18} />
@@ -134,7 +134,7 @@ export default function BookingWidget() {
             setViewMonth(m.getMonth());
           }}
           disabled={!canGoNext}
-          className="rounded-full p-1.5 text-cream-dim transition-colors hover:text-cream disabled:opacity-20"
+          className="rounded-full p-1.5 text-cream-dim transition-[color,transform] hover:text-cream active:scale-90 disabled:opacity-20 disabled:active:scale-100"
           aria-label="Next month"
         >
           <ChevronRight size={18} />
@@ -157,12 +157,12 @@ export default function BookingWidget() {
               key={i}
               onClick={() => selectDate(d)}
               disabled={disabled}
-              className={`aspect-square rounded-lg text-sm font-data transition-colors ${
+              className={`aspect-square rounded-lg text-sm font-data transition-[background-color,color,transform] ${
                 disabled
                   ? "cursor-not-allowed text-cream-dim/20"
                   : isSelected
-                    ? "bg-ember font-semibold text-ink"
-                    : "text-cream-dim hover:bg-cream/10 hover:text-cream"
+                    ? "bg-ember font-semibold text-ink active:scale-95"
+                    : "text-cream-dim hover:bg-cream/10 hover:text-cream active:scale-90"
               }`}
             >
               {d.getDate()}
@@ -194,12 +194,12 @@ export default function BookingWidget() {
                     key={s.time}
                     disabled={s.status !== "open"}
                     onClick={() => setPicked(s.time)}
-                    className={`rounded-lg border px-2 py-2.5 text-xs font-data transition-colors ${
+                    className={`rounded-lg border px-2 py-2.5 text-xs font-data transition-[background-color,color,border-color,transform] ${
                       s.status !== "open"
                         ? "cursor-not-allowed border-cream/5 text-cream-dim/25 line-through"
                         : picked === s.time
-                          ? "border-ember bg-ember text-ink"
-                          : "border-cream/15 text-cream-dim hover:border-cream/40 hover:text-cream"
+                          ? "border-ember bg-ember text-ink active:scale-95"
+                          : "border-cream/15 text-cream-dim hover:border-cream/40 hover:text-cream active:scale-95"
                     }`}
                   >
                     {s.time}
@@ -226,7 +226,7 @@ export default function BookingWidget() {
                 <button
                   onClick={submit}
                   disabled={submitting || !name.trim() || !contact.trim()}
-                  className="rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-105 disabled:opacity-50"
+                  className="rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-105 active:scale-[0.97] disabled:opacity-50 disabled:active:scale-100"
                 >
                   {submitting ? "Booking…" : `Confirm ${selectedDate} at ${picked}`}
                 </button>

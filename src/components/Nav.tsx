@@ -61,7 +61,7 @@ export default function Nav() {
         <Magnetic strength={0.25} className="hidden lg:inline-block">
           <a
             href="#book"
-            className="rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-ink transition-transform hover:scale-105"
+            className="rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-ink transition-transform hover:scale-105 active:scale-[0.97]"
           >
             Book a Call
           </a>
@@ -100,7 +100,7 @@ export default function Nav() {
               <a
                 href="#book"
                 onClick={() => setOpen(false)}
-                className="mt-2 rounded-full bg-ember px-5 py-3 text-center text-sm font-semibold text-ink"
+                className="mt-2 rounded-full bg-ember px-5 py-3 text-center text-sm font-semibold text-ink transition-transform active:scale-[0.97]"
               >
                 Book a Call
               </a>

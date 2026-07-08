@@ -104,7 +104,7 @@ export default function Hero() {
             <Magnetic>
               <a
                 href="#book"
-                className="group inline-flex items-center gap-2 rounded-full bg-ember px-7 py-4 text-sm font-semibold text-ink transition-transform hover:scale-105"
+                className="group inline-flex items-center gap-2 rounded-full bg-ember px-7 py-4 text-sm font-semibold text-ink transition-transform hover:scale-105 active:scale-[0.97]"
               >
                 {hero.ctaPrimary}
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
@@ -112,7 +112,7 @@ export default function Hero() {
             </Magnetic>
             <a
               href="#results"
-              className="inline-flex items-center gap-2 rounded-full border border-cream/25 bg-ink/40 px-7 py-4 text-sm font-semibold text-cream backdrop-blur-sm transition-colors hover:border-cream/60"
+              className="inline-flex items-center gap-2 rounded-full border border-cream/25 bg-ink/40 px-7 py-4 text-sm font-semibold text-cream backdrop-blur-sm transition-[color,border-color,transform] hover:border-cream/60 active:scale-[0.97]"
             >
               {hero.ctaSecondary}
             </a>

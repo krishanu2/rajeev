@@ -49,6 +49,7 @@ export default function SymptomSelector() {
                 type="button"
                 onClick={() => select(opt.id, opt.label)}
                 animate={{ opacity: dimmed ? 0.35 : 1, scale: dimmed ? 0.96 : 1 }}
+                whileTap={{ scale: 0.94 }}
                 transition={{ duration: 0.4 }}
                 className={`flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium transition-colors ${
                   isActive

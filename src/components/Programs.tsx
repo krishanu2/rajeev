@@ -42,7 +42,7 @@ export default function Programs() {
               </ul>
               <a
                 href="#book"
-                className="relative mt-8 inline-flex w-fit items-center justify-center rounded-full bg-ember px-7 py-3.5 text-sm font-semibold text-ink transition-transform hover:scale-105"
+                className="relative mt-8 inline-flex w-fit items-center justify-center rounded-full bg-ember px-7 py-3.5 text-sm font-semibold text-ink transition-transform hover:scale-105 active:scale-[0.97]"
               >
                 Start with this program
               </a>
