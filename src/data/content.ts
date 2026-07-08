@@ -3,6 +3,12 @@
 // that must be replaced with real client material before launch.
 import sangeethBefore from "../assets/sangeeth-before.jpg";
 import sangeethAfter from "../assets/sangeeth-after.jpg";
+import suchetaBefore from "../assets/sucheta-before.jpg";
+import suchetaAfter from "../assets/sucheta-after.jpg";
+import shubhamBefore from "../assets/shubham-before.jpg";
+import shubhamAfter from "../assets/shubham-after.jpg";
+import preetiBefore from "../assets/preeti-before.jpg";
+import preetiAfter from "../assets/preeti-after.jpg";
 
 export const site = {
   name: "FWR",
@@ -171,10 +177,8 @@ export const story = {
   quoteTranslation: "I don't just motivate you. I build a system with you that runs even on days you don't feel motivated.",
 };
 
-// NOTE: Sangeeth's case is real (photos + quote supplied with consent).
-// The other "withheld" cases are still illustrative stand-ins — swap for
-// real client photos + results once written consent is collected; never
-// render raw [[bracket]] placeholder text, it reads as broken to visitors.
+// All four cases below are real clients — photos, numbers and stories
+// supplied by Rajeev with consent.
 export type CaseStudy = {
   matchId: string;
   name: string;
@@ -186,6 +190,10 @@ export type CaseStudy = {
   // placeholder mock strip instead.
   beforePhoto?: string;
   afterPhoto?: string;
+  // Zoomed background crop for the little face circle — tuned per photo
+  // since faces sit in different spots (full-body shots need more zoom).
+  avatarSize?: string;
+  avatarPos?: string;
 };
 
 export const resultsSection = {
@@ -196,30 +204,6 @@ export const resultsSection = {
   // earlier pick can highlight the case that's actually relevant to them.
   cases: [
     {
-      matchId: "pcos",
-      name: "Name withheld · verified client",
-      tag: "PCOS · 8 months",
-      result: "Regular cycles for the first time in 6 years, −14 kg",
-      stat: { value: 14, prefix: "−", suffix: " kg" },
-      color: "ember",
-    },
-    {
-      matchId: "thyroid",
-      name: "Name withheld · verified client",
-      tag: "Thyroid · 5 months",
-      result: "TSH normalized from 11.2 to 2.4, off two of three supplements",
-      stat: { value: 2.4, prefix: "", suffix: " TSH" },
-      color: "moss",
-    },
-    {
-      matchId: "diabetes",
-      name: "Name withheld · verified client",
-      tag: "Type 2 Diabetes · 10 months",
-      result: "HbA1c from 8.9 to 6.1, walking off metformin under doctor supervision",
-      stat: { value: 6.1, prefix: "", suffix: " HbA1c" },
-      color: "clay",
-    },
-    {
       matchId: "weight",
       name: "Sangeeth · shared with consent",
       tag: "Weight loss · 6 months",
@@ -228,6 +212,44 @@ export const resultsSection = {
       color: "ember",
       beforePhoto: sangeethBefore,
       afterPhoto: sangeethAfter,
+      avatarSize: "340%",
+      avatarPos: "46% 14%",
+    },
+    {
+      matchId: "thyroid",
+      name: "Preeti · shared with consent",
+      tag: "Thyroid · 4 months",
+      result: "TSH from 13.3 to 1.3, medication more than halved — and 84 kg down to 59 kg.",
+      stat: { value: 25, prefix: "−", suffix: " kg" },
+      color: "moss",
+      beforePhoto: preetiBefore,
+      afterPhoto: preetiAfter,
+      avatarSize: "190%",
+      avatarPos: "52% 25%",
+    },
+    {
+      matchId: "weight",
+      name: "Sucheta · shared with consent",
+      tag: "Weight loss · 3 months",
+      result: "−5 kg in 3 months, no extreme dieting — and easy to maintain after the programme ended.",
+      stat: { value: 5, prefix: "−", suffix: " kg" },
+      color: "clay",
+      beforePhoto: suchetaBefore,
+      afterPhoto: suchetaAfter,
+      avatarSize: "320%",
+      avatarPos: "38% 10%",
+    },
+    {
+      matchId: "energy",
+      name: "Shubham · shared with consent",
+      tag: "Energy reset · 4 months",
+      result: "Cholesterol down, vitamin levels back on track — energy back after an injury stalled everything.",
+      stat: { value: 4, prefix: "", suffix: " months" },
+      color: "ember",
+      beforePhoto: shubhamBefore,
+      afterPhoto: shubhamAfter,
+      avatarSize: "170%",
+      avatarPos: "50% 20%",
     },
   ] as CaseStudy[],
 };
@@ -238,29 +260,38 @@ export type Testimonial = {
   detail: string;
   // Real client photo (with consent) — falls back to a generic avatar.
   photo?: string;
+  avatarSize?: string;
+  avatarPos?: string;
 };
 
-// Sangeeth's quote is real (supplied with photos + consent). The other two
-// are still illustrative — swap for real ones with consent before launch.
+// All real client quotes, supplied with photos + consent.
 export const testimonials: Testimonial[] = [
-  {
-    quote:
-      "Rajeev didn't give me a diet, he gave me a way to actually live. Two years later, still off my PCOS medication.",
-    name: "Name withheld · verified client",
-    detail: "PCOS client, Bengaluru",
-  },
   {
     quote:
       "Having a coach and nutritionist like Rajeev is great, because it is not just about guiding someone through nutrition — it is also about the mental challenges that come with it. And navigating that was easy in this programme.",
     name: "Sangeeth",
     detail: "Weight loss · −32 kg in 6 months",
     photo: sangeethAfter,
+    avatarSize: "340%",
+    avatarPos: "46% 14%",
   },
   {
     quote:
-      "My endocrinologist actually asked what I was doing differently. That's when I knew this wasn't just another fitness fad.",
-    name: "Name withheld · verified client",
-    detail: "Thyroid client, Hyderabad",
+      "I lost 5 kg in just 3 months, without extreme dieting or exhausting workouts. Even after the programme ended it's been easy to maintain — it never felt like a temporary fix, more like habits and knowledge I can keep applying for life.",
+    name: "Sucheta",
+    detail: "Weight loss · −5 kg in 3 months",
+    photo: suchetaAfter,
+    avatarSize: "320%",
+    avatarPos: "38% 10%",
+  },
+  {
+    quote:
+      "I used to feel stuck in my own body — but things changed when I started with Rajeev. Within four months my cholesterol came down, my vitamin levels got back on track, and I started feeling like me again.",
+    name: "Shubham",
+    detail: "Energy & health reset · 4 months",
+    photo: shubhamAfter,
+    avatarSize: "170%",
+    avatarPos: "50% 20%",
   },
 ];
 

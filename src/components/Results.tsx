@@ -142,8 +142,8 @@ export default function Results() {
                         className={`-mt-7 mb-4 h-14 w-14 rounded-full border-4 border-ink-soft ring-1 ${palette.ring}`}
                         style={{
                           backgroundImage: `url(${c.afterPhoto})`,
-                          backgroundSize: "340%",
-                          backgroundPosition: "46% 14%",
+                          backgroundSize: c.avatarSize ?? "340%",
+                          backgroundPosition: c.avatarPos ?? "46% 14%",
                         }}
                       />
                     ) : (

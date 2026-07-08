@@ -53,8 +53,8 @@ export default function Testimonials() {
                   className="h-12 w-12 rounded-full ring-1 ring-ember/40"
                   style={{
                     backgroundImage: `url(${t.photo})`,
-                    backgroundSize: "340%",
-                    backgroundPosition: "46% 14%",
+                    backgroundSize: t.avatarSize ?? "340%",
+                    backgroundPosition: t.avatarPos ?? "46% 14%",
                   }}
                 />
               ) : (
