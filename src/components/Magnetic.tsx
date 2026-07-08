@@ -35,7 +35,7 @@ export default function Magnetic({
       onMouseMove={handleMove}
       onMouseLeave={reset}
       style={{ x: springX, y: springY }}
-      className={`inline-block ${className ?? ""}`}
+      className={className ?? "inline-block"}
     >
       {children}
     </motion.div>

@@ -40,7 +40,7 @@ export default function Hero() {
     <section id="top" ref={sectionRef} className="relative h-[125svh] bg-ink sm:h-[145svh]">
       {/* Sticky inner wrapper pins the 3D canvas while the headline/copy
           scrolls and fades past it, instead of both scrolling away together */}
-      <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-36 sm:pt-40">
+      <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-24 sm:pt-28">
         <div className="absolute inset-0 -z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(240,180,41,0.16),transparent)]" />
           <Suspense fallback={null}>
@@ -53,7 +53,7 @@ export default function Hero() {
 
         <motion.div
           style={{ y, opacity }}
-          className="container-px relative z-10 mx-auto grid max-w-7xl gap-6 pb-24 pointer-events-none"
+          className="container-px relative z-10 mx-auto grid max-w-7xl gap-3 pb-6 pointer-events-none sm:gap-4"
         >
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -64,7 +64,7 @@ export default function Hero() {
             {hero.eyebrow}
           </motion.p>
 
-          <h1 className="font-display max-w-5xl text-[clamp(2.6rem,7.2vw,6.2rem)] font-medium leading-[1.0] tracking-tight text-cream">
+          <h1 className="font-display max-w-4xl text-[clamp(2rem,5.4vw,4.6rem)] font-medium leading-[1.05] tracking-tight text-cream">
             <motion.span variants={line1Container} initial="hidden" animate="show" className="block">
               {hero.headlineTop.split(" ").map((word, i) => (
                 <motion.span key={i} variants={wordVariants} className="inline-block">
@@ -99,7 +99,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 2.5 }}
-            className="pointer-events-auto mt-2 flex flex-wrap items-center gap-4"
+            className="pointer-events-auto mt-1 flex flex-wrap items-center gap-3"
           >
             <Magnetic>
               <a
@@ -118,11 +118,13 @@ export default function Hero() {
             </a>
           </motion.div>
 
+          {/* Hidden on short viewports — the eyebrow above already carries
+              "8 years / 1000+", so this is safe to drop rather than clip */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 2.7 }}
-            className="pointer-events-auto mt-10 flex max-w-xl flex-wrap gap-x-10 gap-y-4 border-t border-cream/10 pt-6"
+            className="pointer-events-auto mt-3 hidden max-w-xl flex-wrap gap-x-8 gap-y-3 border-t border-cream/10 pt-3 [@media(min-height:680px)]:flex"
           >
             {[hero.stat1, hero.stat2, hero.stat3].map((stat) => (
               <div key={stat.label}>

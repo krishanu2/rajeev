@@ -16,13 +16,27 @@ export default function Nav() {
   }, []);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled || open
-          ? "bg-ink/95 backdrop-blur-md shadow-[0_1px_0_rgba(246,240,230,0.08)]"
-          : "bg-transparent"
-      }`}
-    >
+    <>
+      <AnimatePresence>
+        {open && (
+          <motion.button
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-ink/80 backdrop-blur-sm lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled || open
+            ? "bg-ink/95 backdrop-blur-md shadow-[0_1px_0_rgba(246,240,230,0.08)]"
+            : "bg-transparent"
+        }`}
+      >
       <div className="container-px mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 py-4">
         <a href="#top" className="group shrink-0 font-display text-xl font-medium tracking-tight text-cream">
           FWR<span className="text-ember transition-colors group-hover:text-ember-light">.</span>
@@ -94,6 +108,7 @@ export default function Nav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+      </header>
+    </>
   );
 }
