@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useSelection } from "../context/SelectionContext";
 
 type Slot = { time: string; status: "open" | "blocked" | "booked" };
 
@@ -25,6 +26,9 @@ const MONTH_NAMES = [
 ];
 
 export default function BookingWidget() {
+  // The symptom the visitor picked earlier rides along with the booking, so
+  // Rajeev's CRM and calendar invite already know each client's focus area.
+  const { selectedLabel } = useSelection();
   const today = useMemo(() => {
     const t = new Date();
     t.setHours(0, 0, 0, 0);
@@ -80,7 +84,7 @@ export default function BookingWidget() {
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: selectedDate, time: picked, name, contact }),
+        body: JSON.stringify({ date: selectedDate, time: picked, name, contact, focus: selectedLabel }),
       });
       if (res.status === 409) {
         setError("That slot was just taken — pick another.");

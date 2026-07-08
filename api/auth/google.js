@@ -11,7 +11,9 @@ export default async (req, res) => {
     client_id: process.env.GOOGLE_CLIENT_ID,
     redirect_uri: redirectUri,
     response_type: "code",
-    scope: "https://www.googleapis.com/auth/calendar.events",
+    // calendar.events → Meet links + invites; spreadsheets → the auto-synced
+    // "FWR Clients" sheet. One consent covers both.
+    scope: "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/spreadsheets",
     access_type: "offline",
     prompt: "consent",
   });

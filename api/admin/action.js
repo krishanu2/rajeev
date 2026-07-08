@@ -10,13 +10,28 @@ export default async (req, res) => {
     return;
   }
   const { action, date, time } = req.body || {};
-  if (!date || !time || !SLOT_TIMES.includes(time)) {
+  const wholeDayAction = action === "block-day" || action === "unblock-day";
+  if (!date || (!wholeDayAction && (!time || !SLOT_TIMES.includes(time)))) {
     res.status(400).json({ error: "date and time required" });
     return;
   }
   const pool = getPool();
   try {
-    if (action === "block") {
+    if (action === "block-day") {
+      // Marks every remaining open slot as blocked; booked slots are untouched
+      // because the primary key conflict skips them.
+      await pool.query(
+        `insert into slot_events (slot_date, slot_time, status)
+         select $1::date, unnest($2::text[])::time, 'blocked'
+         on conflict (slot_date, slot_time) do nothing`,
+        [date, SLOT_TIMES]
+      );
+    } else if (action === "unblock-day") {
+      await pool.query(
+        "delete from slot_events where slot_date = $1 and status = 'blocked'",
+        [date]
+      );
+    } else if (action === "block") {
       await pool.query(
         `insert into slot_events (slot_date, slot_time, status)
          values ($1, $2, 'blocked') on conflict (slot_date, slot_time) do nothing`,
@@ -33,7 +48,7 @@ export default async (req, res) => {
         [date, time]
       );
     } else {
-      res.status(400).json({ error: "action must be block, unblock or cancel" });
+      res.status(400).json({ error: "action must be block, unblock, cancel, block-day or unblock-day" });
       return;
     }
     res.status(200).json({ ok: true });

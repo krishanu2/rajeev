@@ -8,7 +8,7 @@ async function getRefreshToken() {
   return rows[0]?.refresh_token || null;
 }
 
-async function getAccessToken() {
+export async function getAccessToken() {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) return null;
   const res = await fetch("https://oauth2.googleapis.com/token", {
@@ -35,7 +35,7 @@ async function getAccessToken() {
 // mechanism Calendly relies on. Returns null (silently) if Google Calendar
 // hasn't been connected yet via /api/auth/google, so bookings still work
 // without it, just without the Meet link.
-export async function createMeetEvent({ date, time, name, contact }) {
+export async function createMeetEvent({ date, time, name, contact, focus }) {
   const accessToken = await getAccessToken();
   if (!accessToken) return null;
 
@@ -64,7 +64,7 @@ export async function createMeetEvent({ date, time, name, contact }) {
         },
         body: JSON.stringify({
           summary: `FWR coaching call — ${name}`,
-          description: `Booked via the FWR (Fit with Rajeev) website.\nContact: ${contact}`,
+          description: `Booked via the FWR (Fit with Rajeev) website.\nContact: ${contact}${focus ? `\nFocus area: ${focus}` : ""}`,
           start: { dateTime: start.toISOString(), timeZone: "Asia/Kolkata" },
           end: { dateTime: end.toISOString(), timeZone: "Asia/Kolkata" },
           attendees,

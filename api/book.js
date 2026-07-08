@@ -1,13 +1,14 @@
 import { getPool, SLOT_TIMES } from "./_db.js";
 import { buildIcs, googleCalendarLink, looksLikeEmail, sendEmail } from "./_email.js";
 import { createMeetEvent } from "./_google.js";
+import { syncClientsToSheet } from "./_sheets.js";
 
 export default async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).json({ error: "POST only" });
     return;
   }
-  const { date, time, name, contact } = req.body || {};
+  const { date, time, name, contact, focus } = req.body || {};
   if (!date || !time || !name || !contact || !SLOT_TIMES.includes(time)) {
     res.status(400).json({ error: "date, time, name, contact required" });
     return;
@@ -22,22 +23,36 @@ export default async (req, res) => {
     // safe against two people booking the same slot at the same instant —
     // the database itself only lets one of the two concurrent inserts win.
     const { rowCount } = await getPool().query(
-      `insert into slot_events (slot_date, slot_time, status, name, contact)
-       values ($1, $2, 'booked', $3, $4)
+      `insert into slot_events (slot_date, slot_time, status, name, contact, focus)
+       values ($1, $2, 'booked', $3, $4, $5)
        on conflict (slot_date, slot_time) do nothing`,
-      [date, time, name, contact]
+      [date, time, name, contact, focus || null]
     );
     if (rowCount === 0) {
       res.status(409).json({ error: "That slot was just taken. Please pick another." });
       return;
     }
 
+    // Every booking creates or refreshes a CRM record, keyed on the email.
+    // A repeat client keeps their status/notes; only the booking counters and
+    // (if newly provided) focus area move.
+    await getPool().query(
+      `insert into clients (email, name, focus, last_booking, total_bookings)
+       values ($1, $2, $3, $4, 1)
+       on conflict (email) do update set
+         name = excluded.name,
+         focus = coalesce(excluded.focus, clients.focus),
+         last_booking = excluded.last_booking,
+         total_bookings = clients.total_bookings + 1`,
+      [contact.trim().toLowerCase(), name.trim(), focus || null, date]
+    );
+
     // If Rajeev's Google Calendar is connected, this creates the event with
     // a real Meet link AND makes Google itself send calendar invites to the
     // customer and admin(s) — exactly how Calendly does it. If it's not
     // connected yet, this quietly returns null and we fall back to a plain
     // confirmation email below instead.
-    const meetLink = await createMeetEvent({ date, time, name, contact });
+    const meetLink = await createMeetEvent({ date, time, name, contact, focus });
     if (meetLink) {
       await getPool().query(
         "update slot_events set meet_link = $1 where slot_date = $2 and slot_time = $3",
@@ -65,6 +80,11 @@ export default async (req, res) => {
           : Promise.resolve(),
       ]);
     }
+
+    // Mirror the updated client list to the Google Sheet. Must be awaited —
+    // Vercel freezes the function after the response — but never allowed to
+    // fail the booking itself (it no-ops until Google is connected).
+    await syncClientsToSheet();
 
     res.status(200).json({ ok: true, meetLink });
   } catch (err) {
