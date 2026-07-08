@@ -35,7 +35,8 @@ export default function AdminApp() {
   };
 
   useEffect(() => {
-    if (key) load(date, key);
+    // TEMPORARY: login gate disabled for testing — auto-loads regardless of key.
+    load(date, key || "testing");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

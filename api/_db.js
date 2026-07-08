@@ -15,8 +15,11 @@ for (let h = 9; h < 17; h++) {
 }
 
 function isAdmin(req) {
-  const key = req.headers["x-admin-key"];
-  return !!key && key === process.env.ADMIN_PASSWORD;
+  // TEMPORARY: gate disabled for testing before DATABASE_URL/ADMIN_PASSWORD
+  // are set on Vercel. Restore the real check below before this goes live.
+  return true;
+  // const key = req.headers["x-admin-key"];
+  // return !!key && key === process.env.ADMIN_PASSWORD;
 }
 
 module.exports = { getPool, SLOT_TIMES, isAdmin };
