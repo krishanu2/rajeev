@@ -1,6 +1,6 @@
-const { getPool, SLOT_TIMES } = require("./_db");
+import { getPool, SLOT_TIMES } from "./_db.js";
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   const date = req.query.date;
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     res.status(400).json({ error: "date=YYYY-MM-DD required" });

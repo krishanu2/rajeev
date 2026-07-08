@@ -1,6 +1,6 @@
-const { getPool, SLOT_TIMES, isAdmin } = require("../_db");
+import { getPool, SLOT_TIMES, isAdmin } from "../_db.js";
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   if (!isAdmin(req)) {
     res.status(401).json({ error: "unauthorized" });
     return;

@@ -1,4 +1,4 @@
-const { getPool } = require("./_db");
+import { getPool } from "./_db.js";
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -7,7 +7,7 @@ function pad(n) {
 // Google Calendar can subscribe to this URL directly ("Other calendars" ->
 // "From URL"). It polls periodically (not instant), which avoids needing a
 // full Google OAuth app registration just to notify Rajeev of new bookings.
-module.exports = async (req, res) => {
+export default async (req, res) => {
   try {
     const { rows } = await getPool().query(
       "select slot_date, slot_time, name, contact from slot_events where status = 'booked' order by slot_date, slot_time"

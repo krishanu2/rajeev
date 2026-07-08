@@ -1,6 +1,6 @@
-const { getPool, SLOT_TIMES } = require("./_db");
+import { getPool, SLOT_TIMES } from "./_db.js";
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).json({ error: "POST only" });
     return;
