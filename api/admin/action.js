@@ -22,7 +22,7 @@ export default async (req, res) => {
       // because the primary key conflict skips them.
       await pool.query(
         `insert into slot_events (slot_date, slot_time, status)
-         select $1::date, unnest($2::text[])::time, 'blocked'
+         select $1::date, unnest($2::text[]), 'blocked'
          on conflict (slot_date, slot_time) do nothing`,
         [date, SLOT_TIMES]
       );
