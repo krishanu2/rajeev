@@ -6,16 +6,8 @@ export const site = {
   name: "FWR",
   fullName: "Fit with Rajeev",
   tagline: "Coach. Not a prescription.",
-  calendlyUrl: "https://calendly.com/rajeevhb/consultation", // [[replace with real Calendly link]]
-  // Flip to true once calendlyUrl above is a real, working link — until then
-  // the CTA section shows a "coming soon" fallback instead of an embarrassing
-  // Calendly 404.
-  calendlyConfigured: false,
   instagramUrl: "https://instagram.com/rajeevhb", // [[confirm handle]]
-  podcastUrl: "#", // [[link to podcast/series]]
-  funWithFitnessUrl: "#", // [[link to Fun with Fitness IG/page]]
   email: "rajeevhb.91@gmail.com",
-  phone: "+91 90000 00000", // [[confirm contact number]]
   city: "Bengaluru, India",
 };
 
@@ -283,7 +275,6 @@ export const community = {
   heading: "Fun with Fitness",
   sub:
     "The community I built for people who want movement to feel like play again — group treks, social workouts, and adventure meetups. It's not the coaching program, it's proof this doesn't have to be miserable.",
-  cta: "See what Fun with Fitness is up to",
 };
 
 export const cta = {

@@ -1,4 +1,4 @@
-import { AtSign, Mail, Mic, Phone } from "lucide-react";
+import { AtSign, Mail } from "lucide-react";
 import { footer, nav, site } from "../data/content";
 
 export default function Footer() {
@@ -41,26 +41,10 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    href={site.podcastUrl}
-                    className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
-                  >
-                    <Mic size={15} /> The Podcast
-                  </a>
-                </li>
-                <li>
-                  <a
                     href={`mailto:${site.email}`}
                     className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
                   >
                     <Mail size={15} /> {site.email}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={`tel:${site.phone}`}
-                    className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
-                  >
-                    <Phone size={15} /> {site.phone}
                   </a>
                 </li>
               </ul>
