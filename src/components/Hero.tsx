@@ -37,7 +37,7 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
 
   return (
-    <section id="top" ref={sectionRef} className="relative h-[160svh] bg-ink">
+    <section id="top" ref={sectionRef} className="relative h-[125svh] bg-ink sm:h-[145svh]">
       {/* Sticky inner wrapper pins the 3D canvas while the headline/copy
           scrolls and fades past it, instead of both scrolling away together */}
       <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-36 sm:pt-40">

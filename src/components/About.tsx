@@ -18,7 +18,7 @@ export default function About() {
               <img
                 src={portrait}
                 alt="Rajeev, founder of FWR"
-                className="h-full w-full object-cover object-top"
+                className="h-full w-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
             </div>

@@ -1,27 +1,46 @@
-import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 type Slot = { time: string; status: "open" | "blocked" | "booked" };
 
-function nextDays(n: number) {
-  const days: { iso: string; label: string }[] = [];
-  const d = new Date();
-  while (days.length < n) {
-    d.setDate(d.getDate() + (days.length === 0 ? 0 : 1));
-    if (d.getDay() !== 0) {
-      const iso = d.toISOString().slice(0, 10);
-      days.push({ iso, label: d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) });
-    }
-  }
-  return days;
+function toIso(d: Date) {
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 10);
 }
 
+function buildMonth(viewYear: number, viewMonth: number) {
+  const firstOfMonth = new Date(viewYear, viewMonth, 1);
+  const startOffset = firstOfMonth.getDay(); // 0=Sun
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < startOffset; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(viewYear, viewMonth, d));
+  return cells;
+}
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
 export default function BookingWidget() {
-  const days = useMemo(() => nextDays(10), []);
-  const [date, setDate] = useState(days[0].iso);
+  const today = useMemo(() => {
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
+    return t;
+  }, []);
+  const maxDate = useMemo(() => {
+    const m = new Date(today);
+    m.setMonth(m.getMonth() + 2);
+    return m;
+  }, [today]);
+
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -29,29 +48,43 @@ export default function BookingWidget() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
+  const cells = useMemo(() => buildMonth(viewYear, viewMonth), [viewYear, viewMonth]);
+  const canGoPrev = new Date(viewYear, viewMonth, 1) > today;
+  const canGoNext = new Date(viewYear, viewMonth + 1, 1) <= maxDate;
+
+  const isDisabled = (d: Date) => d < today || d.getDay() === 0 || d > maxDate;
+
+  const selectDate = (d: Date) => {
+    if (isDisabled(d)) return;
+    const iso = toIso(d);
+    setSelectedDate(iso);
     setPicked(null);
-    fetch(`/api/slots?date=${date}`)
+    setLoading(true);
+    fetch(`/api/slots?date=${iso}`)
       .then((r) => r.json())
-      .then((d) => setSlots(d.slots || []))
+      .then((data) => setSlots(data.slots || []))
       .finally(() => setLoading(false));
-  }, [date]);
+  };
+
+  const refreshSlots = () => {
+    if (!selectedDate) return;
+    fetch(`/api/slots?date=${selectedDate}`).then((r) => r.json()).then((d) => setSlots(d.slots || []));
+  };
 
   const submit = async () => {
-    if (!picked || !name.trim() || !contact.trim()) return;
+    if (!picked || !selectedDate || !name.trim() || !contact.trim()) return;
     setSubmitting(true);
     setError("");
     try {
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date, time: picked, name, contact }),
+        body: JSON.stringify({ date: selectedDate, time: picked, name, contact }),
       });
       if (res.status === 409) {
         setError("That slot was just taken — pick another.");
         setPicked(null);
-        fetch(`/api/slots?date=${date}`).then((r) => r.json()).then((d) => setSlots(d.slots || []));
+        refreshSlots();
       } else if (!res.ok) {
         setError("Something went wrong. Please try again.");
       } else {
@@ -70,79 +103,138 @@ export default function BookingWidget() {
         <Check className="mx-auto text-ember" size={32} />
         <p className="font-display mt-4 text-xl text-cream">You're booked.</p>
         <p className="mt-2 text-sm text-cream-dim">
-          {date} at {picked} — I'll see you then.
+          {selectedDate} at {picked} — I'll see you then.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-2xl border border-cream/10 bg-ink p-6 sm:p-8">
-      <p className="text-xs font-semibold uppercase tracking-widest text-cream-dim">Pick a day</p>
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {days.map((d) => (
-          <button
-            key={d.iso}
-            onClick={() => setDate(d.iso)}
-            className={`shrink-0 rounded-full border px-4 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
-              date === d.iso ? "border-ember bg-ember text-ink" : "border-cream/20 text-cream-dim hover:border-cream/50"
-            }`}
-          >
-            {d.label}
-          </button>
-        ))}
+    <div className="mx-auto max-w-md rounded-2xl border border-cream/10 bg-ink p-5 sm:p-7">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => {
+            const m = new Date(viewYear, viewMonth - 1, 1);
+            setViewYear(m.getFullYear());
+            setViewMonth(m.getMonth());
+          }}
+          disabled={!canGoPrev}
+          className="rounded-full p-1.5 text-cream-dim transition-colors hover:text-cream disabled:opacity-20"
+          aria-label="Previous month"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <p className="font-display text-base text-cream">
+          {MONTH_NAMES[viewMonth]} {viewYear}
+        </p>
+        <button
+          onClick={() => {
+            const m = new Date(viewYear, viewMonth + 1, 1);
+            setViewYear(m.getFullYear());
+            setViewMonth(m.getMonth());
+          }}
+          disabled={!canGoNext}
+          className="rounded-full p-1.5 text-cream-dim transition-colors hover:text-cream disabled:opacity-20"
+          aria-label="Next month"
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
 
-      <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-cream-dim">Pick a 30-min slot</p>
-      {loading ? (
-        <div className="mt-4 flex justify-center py-6">
-          <Loader2 className="animate-spin text-cream-dim" size={22} />
-        </div>
-      ) : (
-        <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6">
-          {slots.map((s) => (
+      <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[0.65rem] uppercase tracking-wide text-cream-dim/60">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+          <div key={i}>{d}</div>
+        ))}
+      </div>
+      <div className="mt-1 grid grid-cols-7 gap-1">
+        {cells.map((d, i) => {
+          if (!d) return <div key={i} />;
+          const iso = toIso(d);
+          const disabled = isDisabled(d);
+          const isSelected = iso === selectedDate;
+          return (
             <button
-              key={s.time}
-              disabled={s.status !== "open"}
-              onClick={() => setPicked(s.time)}
-              className={`rounded-lg border px-2 py-2.5 text-xs font-data transition-colors ${
-                s.status !== "open"
-                  ? "cursor-not-allowed border-cream/5 text-cream-dim/25 line-through"
-                  : picked === s.time
-                    ? "border-ember bg-ember text-ink"
-                    : "border-cream/15 text-cream-dim hover:border-cream/40 hover:text-cream"
+              key={i}
+              onClick={() => selectDate(d)}
+              disabled={disabled}
+              className={`aspect-square rounded-lg text-sm font-data transition-colors ${
+                disabled
+                  ? "cursor-not-allowed text-cream-dim/20"
+                  : isSelected
+                    ? "bg-ember font-semibold text-ink"
+                    : "text-cream-dim hover:bg-cream/10 hover:text-cream"
               }`}
             >
-              {s.time}
+              {d.getDate()}
             </button>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
-      {picked && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex flex-col gap-3">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-            className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
-          />
-          <input
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            placeholder="Phone or email"
-            className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
-          />
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          <button
-            onClick={submit}
-            disabled={submitting || !name.trim() || !contact.trim()}
-            className="rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-105 disabled:opacity-50"
+      <AnimatePresence mode="wait">
+        {selectedDate && (
+          <motion.div
+            key={selectedDate}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
           >
-            {submitting ? "Booking…" : `Confirm ${date} at ${picked}`}
-          </button>
-        </motion.div>
-      )}
+            <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-cream-dim">
+              Available times · {selectedDate}
+            </p>
+            {loading ? (
+              <div className="mt-4 flex justify-center py-6">
+                <Loader2 className="animate-spin text-cream-dim" size={22} />
+              </div>
+            ) : (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {slots.map((s) => (
+                  <button
+                    key={s.time}
+                    disabled={s.status !== "open"}
+                    onClick={() => setPicked(s.time)}
+                    className={`rounded-lg border px-2 py-2.5 text-xs font-data transition-colors ${
+                      s.status !== "open"
+                        ? "cursor-not-allowed border-cream/5 text-cream-dim/25 line-through"
+                        : picked === s.time
+                          ? "border-ember bg-ember text-ink"
+                          : "border-cream/15 text-cream-dim hover:border-cream/40 hover:text-cream"
+                    }`}
+                  >
+                    {s.time}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {picked && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex flex-col gap-3">
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
+                />
+                <input
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  placeholder="Phone or email"
+                  className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
+                />
+                {error && <p className="text-sm text-red-400">{error}</p>}
+                <button
+                  onClick={submit}
+                  disabled={submitting || !name.trim() || !contact.trim()}
+                  className="rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-105 disabled:opacity-50"
+                >
+                  {submitting ? "Booking…" : `Confirm ${selectedDate} at ${picked}`}
+                </button>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
