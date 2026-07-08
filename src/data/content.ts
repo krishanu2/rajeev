@@ -1,6 +1,8 @@
 // All site copy lives here so it can be swapped for Rajeev's real content
 // without touching component code. Anything wrapped in [[ ]] is a placeholder
 // that must be replaced with real client material before launch.
+import sangeethBefore from "../assets/sangeeth-before.jpg";
+import sangeethAfter from "../assets/sangeeth-after.jpg";
 
 export const site = {
   name: "FWR",
@@ -169,10 +171,23 @@ export const story = {
   quoteTranslation: "I don't just motivate you. I build a system with you that runs even on days you don't feel motivated.",
 };
 
-// NOTE: names below are intentionally "withheld" rather than invented —
-// these are illustrative example cases standing in for real transformations.
-// Swap for real client photos + results once written consent is collected;
-// never render raw [[bracket]] placeholder text, it reads as broken to visitors.
+// NOTE: Sangeeth's case is real (photos + quote supplied with consent).
+// The other "withheld" cases are still illustrative stand-ins — swap for
+// real client photos + results once written consent is collected; never
+// render raw [[bracket]] placeholder text, it reads as broken to visitors.
+export type CaseStudy = {
+  matchId: string;
+  name: string;
+  tag: string;
+  result: string;
+  stat: { value: number; prefix: string; suffix: string };
+  color: string;
+  // Real before/after photos (with consent). Cases without them render the
+  // placeholder mock strip instead.
+  beforePhoto?: string;
+  afterPhoto?: string;
+};
+
 export const resultsSection = {
   eyebrow: "Real clients, real numbers",
   heading: "Not before/after filters. Before/after decisions.",
@@ -206,18 +221,28 @@ export const resultsSection = {
     },
     {
       matchId: "weight",
-      name: "Name withheld · verified client",
+      name: "Sangeeth · shared with consent",
       tag: "Weight loss · 6 months",
-      result: "−22 kg, kept it off for a year and counting",
-      stat: { value: 22, prefix: "−", suffix: " kg" },
+      result: "−32 kg in 6 months — and the number on the scale was never the whole story.",
+      stat: { value: 32, prefix: "−", suffix: " kg" },
       color: "ember",
+      beforePhoto: sangeethBefore,
+      afterPhoto: sangeethAfter,
     },
-  ],
+  ] as CaseStudy[],
 };
 
-// Same note as resultsSection above — illustrative example quotes, not real
-// client testimonials yet. Swap for the real thing with consent before launch.
-export const testimonials = [
+export type Testimonial = {
+  quote: string;
+  name: string;
+  detail: string;
+  // Real client photo (with consent) — falls back to a generic avatar.
+  photo?: string;
+};
+
+// Sangeeth's quote is real (supplied with photos + consent). The other two
+// are still illustrative — swap for real ones with consent before launch.
+export const testimonials: Testimonial[] = [
   {
     quote:
       "Rajeev didn't give me a diet, he gave me a way to actually live. Two years later, still off my PCOS medication.",
@@ -226,9 +251,10 @@ export const testimonials = [
   },
   {
     quote:
-      "Sabse alag baat — woh judge nahi karta. Jab main gir jaata tha, woh plan tod ke dobara banata tha, lecture nahi deta tha.",
-    name: "Name withheld · verified client",
-    detail: "Weight loss client, Bengaluru",
+      "Having a coach and nutritionist like Rajeev is great, because it is not just about guiding someone through nutrition — it is also about the mental challenges that come with it. And navigating that was easy in this programme.",
+    name: "Sangeeth",
+    detail: "Weight loss · −32 kg in 6 months",
+    photo: sangeethAfter,
   },
   {
     quote:

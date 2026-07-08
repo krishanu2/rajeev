@@ -44,12 +44,27 @@ export default function Testimonials() {
               {t.quote}
             </p>
             <div className="mt-8 flex flex-col items-center gap-3">
-              <div
-                className={`flex h-12 w-12 items-center justify-center rounded-full ring-1 ${avatarPalette[active % avatarPalette.length]}`}
-                title="Client photo placeholder"
-              >
-                <UserRound size={20} className="text-cream" strokeWidth={1.5} />
-              </div>
+              {t.photo ? (
+                // Zoomed background crop: pulls a headshot out of a full-body
+                // photo (object-cover alone can't zoom past "fit").
+                <div
+                  role="img"
+                  aria-label={t.name}
+                  className="h-12 w-12 rounded-full ring-1 ring-ember/40"
+                  style={{
+                    backgroundImage: `url(${t.photo})`,
+                    backgroundSize: "340%",
+                    backgroundPosition: "46% 14%",
+                  }}
+                />
+              ) : (
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ring-1 ${avatarPalette[active % avatarPalette.length]}`}
+                  title="Client photo placeholder"
+                >
+                  <UserRound size={20} className="text-cream" strokeWidth={1.5} />
+                </div>
+              )}
               <div>
                 <p className="text-sm font-semibold text-cream">{t.name}</p>
                 <p className="text-xs text-cream-dim">{t.detail}</p>
