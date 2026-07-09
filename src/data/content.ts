@@ -27,6 +27,7 @@ export const nav = [
   { label: "Results", href: "#results" },
   { label: "Programs", href: "#programs" },
   { label: "Fun with Fitness", href: "#community" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 // A quick interactive gut-check placed right after the hero. The point is

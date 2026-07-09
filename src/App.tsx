@@ -8,6 +8,7 @@ import Results from "./components/Results";
 import Testimonials from "./components/Testimonials";
 import Programs from "./components/Programs";
 import FunWithFitness from "./components/FunWithFitness";
+import FAQ from "./components/FAQ";
 import CTA from "./components/CTA";
 import Footer from "./components/Footer";
 import CursorGlow from "./components/CursorGlow";
@@ -44,6 +45,7 @@ export default function App() {
         <Beat id="invitation" tone="invitation">
           <Programs />
           <FunWithFitness />
+          <FAQ />
           <CTA />
         </Beat>
       </main>

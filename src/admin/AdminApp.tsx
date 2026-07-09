@@ -23,6 +23,7 @@ type Client = {
 
 type Stats = { totalClients: number; newThisMonth: number; callsNext7Days: number };
 type WeekDay = { date: string; booked: number; blocked: number; open: number };
+type Faq = { id: number; question: string; answer: string };
 
 const STATUSES = ["lead", "active", "paused", "completed"] as const;
 const STATUS_COLORS: Record<string, string> = {
@@ -50,7 +51,7 @@ export default function AdminApp() {
   const [input, setInput] = useState("");
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [tab, setTab] = useState<"schedule" | "clients">("schedule");
+  const [tab, setTab] = useState<"schedule" | "clients" | "faqs">("schedule");
 
   // Schedule state
   const [date, setDate] = useState(todayIso());
@@ -59,6 +60,12 @@ export default function AdminApp() {
   const [loading, setLoading] = useState(false);
   const [rangeFrom, setRangeFrom] = useState("00:00");
   const [rangeTo, setRangeTo] = useState("08:30");
+
+  // FAQ state
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [faqDrafts, setFaqDrafts] = useState<Record<number, { question: string; answer: string }>>({});
+  const [newFaq, setNewFaq] = useState({ question: "", answer: "" });
+  const [faqBusy, setFaqBusy] = useState(false);
 
   // Clients state
   const [clients, setClients] = useState<Client[]>([]);
@@ -110,12 +117,36 @@ export default function AdminApp() {
       .finally(() => setClientsLoading(false));
   };
 
+  const loadFaqs = (k: string) => {
+    fetch("/api/admin/faqs", { headers: headers(k) })
+      .then((r) => r.json())
+      .then((data) => setFaqs(data.faqs || []))
+      .catch(() => {});
+  };
+
+  // All FAQ changes go through one endpoint; it returns the fresh list.
+  const faqAction = async (body: Record<string, unknown>) => {
+    setFaqBusy(true);
+    try {
+      const res = await fetch("/api/admin/faqs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers(key || "testing") },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.faqs) setFaqs(data.faqs);
+    } finally {
+      setFaqBusy(false);
+    }
+  };
+
   useEffect(() => {
     // TEMPORARY: login gate disabled for testing — auto-loads regardless of key.
     const k = key || "testing";
     loadDay(date, k);
     loadWeek(k);
     loadClients(k);
+    loadFaqs(k);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -224,15 +255,15 @@ export default function AdminApp() {
         )}
 
         <div className="mt-8 flex gap-1 rounded-full border border-cream/10 bg-ink-soft p-1">
-          {(["schedule", "clients"] as const).map((t) => (
+          {(["schedule", "clients", "faqs"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold capitalize transition-colors ${
+              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                 tab === t ? "bg-ember text-ink" : "text-cream-dim hover:text-cream"
               }`}
             >
-              {t}
+              {t === "faqs" ? "FAQs" : t === "schedule" ? "Schedule" : "Clients"}
             </button>
           ))}
         </div>
@@ -387,6 +418,137 @@ export default function AdminApp() {
                 ))}
               </div>
             )}
+          </>
+        )}
+
+        {tab === "faqs" && (
+          <>
+            <p className="mt-6 text-xs leading-relaxed text-cream-dim/70">
+              These questions appear in the FAQ section of the website. Changes go live
+              immediately — no technical steps needed.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-ember/25 bg-ember/5 p-4">
+              <p className="text-sm font-semibold text-cream">Add a new question</p>
+              <input
+                value={newFaq.question}
+                onChange={(e) => setNewFaq((f) => ({ ...f, question: e.target.value }))}
+                placeholder="Type the question here…"
+                className="mt-3 w-full rounded-lg border border-cream/15 bg-ink px-4 py-3 text-sm text-cream placeholder:text-cream-dim/40 focus:border-ember focus:outline-none"
+              />
+              <textarea
+                value={newFaq.answer}
+                onChange={(e) => setNewFaq((f) => ({ ...f, answer: e.target.value }))}
+                placeholder="Type the answer here…"
+                rows={3}
+                className="mt-2 w-full resize-none rounded-lg border border-cream/15 bg-ink px-4 py-3 text-sm text-cream placeholder:text-cream-dim/40 focus:border-ember focus:outline-none"
+              />
+              <button
+                onClick={async () => {
+                  await faqAction({ action: "add", ...newFaq });
+                  setNewFaq({ question: "", answer: "" });
+                }}
+                disabled={faqBusy || !newFaq.question.trim() || !newFaq.answer.trim()}
+                className="mt-3 rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-ink disabled:opacity-40"
+              >
+                Add to website
+              </button>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3">
+              {faqs.map((f, i) => {
+                const draft = faqDrafts[f.id];
+                const changed =
+                  draft && (draft.question !== f.question || draft.answer !== f.answer);
+                return (
+                  <div key={f.id} className="rounded-xl border border-cream/10 bg-ink-soft p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={() => faqAction({ action: "move", id: f.id, dir: "up" })}
+                          disabled={faqBusy || i === 0}
+                          aria-label="Move up"
+                          className="rounded-md border border-cream/10 px-2 py-0.5 text-xs text-cream-dim hover:text-cream disabled:opacity-20"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => faqAction({ action: "move", id: f.id, dir: "down" })}
+                          disabled={faqBusy || i === faqs.length - 1}
+                          aria-label="Move down"
+                          className="rounded-md border border-cream/10 px-2 py-0.5 text-xs text-cream-dim hover:text-cream disabled:opacity-20"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <input
+                          value={draft?.question ?? f.question}
+                          onChange={(e) =>
+                            setFaqDrafts((d) => ({
+                              ...d,
+                              [f.id]: {
+                                question: e.target.value,
+                                answer: d[f.id]?.answer ?? f.answer,
+                              },
+                            }))
+                          }
+                          className="w-full rounded-lg border border-cream/10 bg-ink px-3 py-2 text-sm font-semibold text-cream focus:border-ember focus:outline-none"
+                        />
+                        <textarea
+                          value={draft?.answer ?? f.answer}
+                          onChange={(e) =>
+                            setFaqDrafts((d) => ({
+                              ...d,
+                              [f.id]: {
+                                question: d[f.id]?.question ?? f.question,
+                                answer: e.target.value,
+                              },
+                            }))
+                          }
+                          rows={3}
+                          className="mt-2 w-full resize-none rounded-lg border border-cream/10 bg-ink px-3 py-2 text-sm text-cream-dim focus:border-ember focus:outline-none"
+                        />
+                        <div className="mt-2 flex items-center gap-3">
+                          {changed && (
+                            <button
+                              onClick={async () => {
+                                await faqAction({ action: "update", id: f.id, ...draft });
+                                setFaqDrafts((d) => {
+                                  const next = { ...d };
+                                  delete next[f.id];
+                                  return next;
+                                });
+                              }}
+                              disabled={faqBusy}
+                              className="rounded-full bg-ember px-5 py-1.5 text-xs font-semibold text-ink disabled:opacity-50"
+                            >
+                              Save changes
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (window.confirm("Remove this question from the website?")) {
+                                faqAction({ action: "delete", id: f.id });
+                              }
+                            }}
+                            disabled={faqBusy}
+                            className="text-xs font-semibold text-red-400 underline disabled:opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {faqs.length === 0 && (
+                <p className="text-sm text-cream-dim">
+                  No questions yet — add the first one above and it appears on the site instantly.
+                </p>
+              )}
+            </div>
           </>
         )}
 
