@@ -1,5 +1,6 @@
 import { AtSign, Mail } from "lucide-react";
 import { footer, nav, site } from "../data/content";
+import fwrLogo from "../assets/fwr-logo.png";
 
 export default function Footer() {
   return (
@@ -7,10 +8,8 @@ export default function Footer() {
       <div className="container-px mx-auto max-w-7xl">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="max-w-sm">
-            <p className="font-display text-xl text-cream">
-              FWR<span className="text-ember">.</span>
-            </p>
-            <p className="font-data text-[0.65rem] uppercase tracking-[0.2em] text-cream-dim/60">{site.fullName}</p>
+            <img src={fwrLogo} alt="FWR — Fit with Rajeev" className="h-8 w-auto" />
+            <p className="mt-3 font-data text-[0.65rem] uppercase tracking-[0.2em] text-cream-dim/60">{site.fullName}</p>
             <p className="mt-3 text-sm leading-relaxed text-cream-dim">{footer.note}</p>
           </div>
 

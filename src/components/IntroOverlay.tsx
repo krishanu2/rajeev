@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import fwrLogo from "../assets/fwr-logo.png";
 
 export default function IntroOverlay() {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -24,14 +25,14 @@ export default function IntroOverlay() {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-ink"
         >
           <div className="flex flex-col items-center gap-5">
-            <motion.p
+            <motion.img
+              src={fwrLogo}
+              alt="FWR — Fit with Rajeev"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-2xl tracking-tight text-cream"
-            >
-              FWR<span className="text-ember">.</span>
-            </motion.p>
+              className="h-10 w-auto"
+            />
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}

@@ -336,10 +336,10 @@ export const community = {
 };
 
 export const cta = {
-  eyebrow: "Ready when you are",
-  heading: "Let's get on a call.",
+  eyebrow: "One-on-one with Rajeev",
+  heading: "Book your one-on-one session.",
   sub:
-    "15 minutes. No pitch deck, no pressure — just a real conversation about what's not working and whether I can help. Pick a time that works for you.",
+    "15 minutes. No pitch deck, no pressure — just a real conversation about what's not working and whether I can help.",
 };
 
 export const footer = {

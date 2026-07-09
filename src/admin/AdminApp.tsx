@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import fwrLogo from "../assets/fwr-logo.png";
 
 type Slot = {
   time: string;
@@ -197,7 +198,8 @@ export default function AdminApp() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-ink px-6">
         <form onSubmit={login} className="w-full max-w-sm rounded-2xl border border-cream/10 bg-ink-soft p-8">
-          <p className="font-display text-xl text-cream">FWR Admin</p>
+          <img src={fwrLogo} alt="FWR" className="h-7 w-auto" />
+          <p className="mt-3 font-display text-xl text-cream">Admin</p>
           <input
             type="password"
             value={input}
@@ -222,7 +224,10 @@ export default function AdminApp() {
     <div className="min-h-screen bg-ink px-4 py-8 text-cream sm:px-6 sm:py-10">
       <div className="mx-auto max-w-4xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-display text-2xl">FWR Admin</p>
+          <div className="flex items-center gap-3">
+            <img src={fwrLogo} alt="FWR" className="h-7 w-auto" />
+            <p className="font-display text-2xl">Admin</p>
+          </div>
           <div className="flex items-center gap-4 text-xs">
             {sheetUrl && (
               <a href={sheetUrl} target="_blank" rel="noreferrer" className="font-semibold text-ember underline">

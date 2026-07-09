@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { nav } from "../data/content";
 import Magnetic from "./Magnetic";
+import fwrLogo from "../assets/fwr-logo.png";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -38,8 +39,8 @@ export default function Nav() {
         }`}
       >
       <div className="container-px mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 py-4">
-        <a href="#top" className="group shrink-0 font-display text-xl font-medium tracking-tight text-cream">
-          FWR<span className="text-ember transition-colors group-hover:text-ember-light">.</span>
+        <a href="#top" className="shrink-0 transition-opacity hover:opacity-80">
+          <img src={fwrLogo} alt="FWR — Fit with Rajeev" className="h-6 w-auto sm:h-7" />
         </a>
 
         <nav className="hidden min-w-0 items-center gap-6 lg:flex xl:gap-8">
