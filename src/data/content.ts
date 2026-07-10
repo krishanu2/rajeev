@@ -148,7 +148,7 @@ export const hero = {
   headlineHighlight: "7 minutes.",
   headlineBottom: "I get your whole life.",
   sub:
-    "PCOS, thyroid, diabetes, stubborn weight — these aren't solved by a prescription refill. They're solved in what you eat, how you sleep, and how you handle stress, every single day. That's the part I actually coach.",
+    "PCOS, thyroid, diabetes, stubborn weight — these aren't fixed by a prescription refill. They're fixed in how you eat, sleep and handle stress every day. That's the part I coach.",
   ctaPrimary: "Book a consultation call",
   ctaSecondary: "See real results",
   stat1: { value: "1000+", label: "clients coached" },
@@ -170,9 +170,8 @@ export const story = {
   eyebrow: "Why I do this",
   heading: "I didn't start as a coach. I started as someone who needed one.",
   paragraphs: [
-    "Before the transformations, before the 1000+ client stories, I was a Zumba instructor trying to figure out my own body — energy crashes, weight that wouldn't move, the works. I know what it feels like to be told to 'just eat less and move more' by someone who's never had to live in your body.",
-    "Doctors aren't the villain here — they're just boxed in. A 7-minute appointment was never built to fix a lifestyle condition. PCOS, thyroid, sugar, stubborn weight — these are daily-decision problems. What you eat at 8pm, how you sleep, how you handle a stressful boss — that's where the real work happens, and that's the part nobody's coaching you through.",
-    "So that's what I do. Not meal plans you'll quit in ten days. Not shame. A daily system, personally coached, built around your actual life — not a template.",
+    "Before the 1000+ client stories, I was a Zumba instructor fighting my own body — energy crashes, weight that wouldn't move. I know what 'just eat less and move more' feels like from the receiving end.",
+    "A 7-minute appointment was never built to fix a lifestyle. PCOS, thyroid, sugar, stubborn weight are daily-decision problems — so that's what I coach. A daily system built around your actual life. No meal-plan PDFs, no shame.",
   ],
   quote: "Main aapko motivate nahi karta. Main aapke saath system banata hoon jo motivation ke bina bhi chalta hai.",
   quoteTranslation: "I don't just motivate you. I build a system with you that runs even on days you don't feel motivated.",
@@ -200,7 +199,7 @@ export type CaseStudy = {
 export const resultsSection = {
   eyebrow: "Real clients, real numbers",
   heading: "Not before/after filters. Before/after decisions.",
-  sub: "A handful of the 1000+ people who did the daily work. Photos and names are shared only with a client's written consent.",
+  sub: "A few of the 1000+ people who did the daily work. Shared only with written consent.",
   // matchId ties a case back to a symptomSelector option id, so a visitor's
   // earlier pick can highlight the case that's actually relevant to them.
   cases: [
@@ -278,7 +277,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "I lost 5 kg in just 3 months, without extreme dieting or exhausting workouts. Even after the programme ended it's been easy to maintain — it never felt like a temporary fix, more like habits and knowledge I can keep applying for life.",
+      "I lost 5 kg in just 3 months, without extreme dieting or exhausting workouts. Even after the programme ended it's been easy to maintain — it never felt like a temporary fix.",
     name: "Sucheta",
     detail: "Weight loss · −5 kg in 3 months",
     photo: suchetaAfter,
@@ -314,14 +313,14 @@ export const programs = {
     {
       title: "Metabolic Reset",
       description:
-        "A focused program for stubborn weight and blood-sugar issues where the basics haven't worked — built around habit sequencing, not restriction.",
+        "For stubborn weight and blood sugar when the basics haven't worked — habit sequencing, not restriction.",
       bullets: ["8–12 week structure", "Lab-informed adjustments"],
       featured: false,
     },
     {
       title: "Women's Hormonal Health Track",
       description:
-        "Coaching specifically for PCOS and thyroid clients, coordinated alongside your doctor — food, cycle tracking, stress and sleep as one system.",
+        "PCOS and thyroid coaching alongside your doctor — food, cycle, stress and sleep as one system.",
       bullets: ["Cycle-aware programming", "Works alongside your endocrinologist"],
       featured: false,
     },
@@ -332,7 +331,7 @@ export const community = {
   eyebrow: "Beyond 1:1 coaching",
   heading: "Fun with Fitness",
   sub:
-    "The community I built for people who want movement to feel like play again — group treks, social workouts, and adventure meetups. It's not the coaching program, it's proof this doesn't have to be miserable.",
+    "The community I built for people who want movement to feel like play again — group treks, social workouts, adventure meetups. Proof this doesn't have to be miserable.",
 };
 
 export const cta = {

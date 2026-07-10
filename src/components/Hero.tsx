@@ -5,6 +5,7 @@ import { hero } from "../data/content";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import StatCounter from "./StatCounter";
 import Magnetic from "./Magnetic";
+import rajeevHero from "../assets/rajeev-hero.jpg";
 
 const HeroScene = lazy(() => import("./three/HeroScene"));
 
@@ -43,10 +44,22 @@ export default function Hero() {
       <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-24 sm:pt-28">
         <div className="absolute inset-0 -z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(240,180,41,0.16),transparent)]" />
+          {/* Rajeev himself, gold-on-black duotone so the photo reads as brand
+              atmosphere rather than a pasted photograph — the "personal touch"
+              the old site's hero had. Edges dissolve into the ink background. */}
+          <div className="absolute inset-y-0 right-0 w-full md:w-[62%]">
+            <img
+              src={rajeevHero}
+              alt=""
+              aria-hidden
+              draggable={false}
+              className="h-full w-full select-none object-cover object-[55%_22%] [filter:grayscale(1)_sepia(1)_hue-rotate(-12deg)_saturate(1.7)_brightness(0.72)_contrast(1.1)] [mask-image:radial-gradient(ellipse_72%_88%_at_62%_42%,black_42%,transparent_76%)]"
+            />
+          </div>
           <Suspense fallback={null}>
             <HeroScene reducedMotion={reducedMotion} />
           </Suspense>
-          {/* Scrim keeps copy readable regardless of where the 3D shape drifts */}
+          {/* Scrim keeps copy readable over the photo */}
           <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/10 md:via-ink/60 md:to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink to-transparent" />
         </div>

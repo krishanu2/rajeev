@@ -1,6 +1,7 @@
 import { Users, Mountain, PartyPopper } from "lucide-react";
 import { community } from "../data/content";
 import Reveal from "./Reveal";
+import rajeevCommunity from "../assets/rajeev-community.jpg";
 
 export default function FunWithFitness() {
   return (
@@ -21,20 +22,31 @@ export default function FunWithFitness() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
-                {[
-                  { icon: Mountain, label: "Group treks & adventures" },
-                  { icon: Users, label: "Social fitness meetups" },
-                  { icon: PartyPopper, label: "Community, not competition" },
-                ].map(({ icon: Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex flex-col items-center gap-2 rounded-xl border border-cream/10 bg-ink/40 p-4 text-center md:flex-row md:text-left"
-                  >
-                    <Icon size={20} className="text-ember-light" />
-                    <span className="text-xs text-cream-dim md:text-sm">{label}</span>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-3">
+                <div className="relative overflow-hidden rounded-2xl border border-cream/10">
+                  <img
+                    src={rajeevCommunity}
+                    alt="Rajeev at a Fun with Fitness meetup"
+                    loading="lazy"
+                    className="h-52 w-full object-cover object-[50%_25%] md:h-56"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { icon: Mountain, label: "Group treks" },
+                    { icon: Users, label: "Social workouts" },
+                    { icon: PartyPopper, label: "Community" },
+                  ].map(({ icon: Icon, label }) => (
+                    <div
+                      key={label}
+                      className="flex flex-col items-center gap-1.5 rounded-xl border border-cream/10 bg-ink/40 p-3 text-center"
+                    >
+                      <Icon size={18} className="text-ember-light" />
+                      <span className="text-[0.7rem] text-cream-dim">{label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

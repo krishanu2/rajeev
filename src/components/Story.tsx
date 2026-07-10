@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { comparison, story } from "../data/content";
 import Reveal from "./Reveal";
+import rajeevTraining from "../assets/rajeev-training.jpg";
 
 export default function Story() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -45,6 +46,20 @@ export default function Story() {
               <p className="text-lg leading-relaxed text-cream-dim">{p}</p>
             </Reveal>
           ))}
+          <Reveal delay={0.2}>
+            <div className="relative overflow-hidden rounded-2xl border border-cream/10">
+              <img
+                src={rajeevTraining}
+                alt="Rajeev training"
+                loading="lazy"
+                className="h-56 w-full object-cover object-[50%_30%] [filter:saturate(0.85)_brightness(0.9)_contrast(1.05)] sm:h-64"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink-soft/70 via-transparent to-transparent" />
+              <p className="font-data absolute bottom-3 left-4 text-[0.6rem] uppercase tracking-[0.25em] text-cream/80">
+                The daily work — no shortcuts
+              </p>
+            </div>
+          </Reveal>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, Sparkles, Torus, Icosahedron } from "@react-three/drei";
+import { Float, Sparkles, Torus, Icosahedron } from "@react-three/drei";
 import * as THREE from "three";
 
 function OrbitRing({ radius, speed, color, tilt }: { radius: number; speed: number; color: string; tilt: number }) {
@@ -17,45 +17,9 @@ function OrbitRing({ radius, speed, color, tilt }: { radius: number; speed: numb
   );
 }
 
-function CoreBlob({ reducedMotion }: { reducedMotion: boolean }) {
-  const mesh = useRef<THREE.Mesh>(null);
-  const { pointer } = useThree();
-
-  useFrame((state) => {
-    if (!mesh.current) return;
-    const t = state.clock.elapsedTime;
-    const idleX = t * 0.08;
-    const idleY = t * 0.12;
-    if (reducedMotion) {
-      mesh.current.rotation.x = idleX;
-      mesh.current.rotation.y = idleY;
-      return;
-    }
-    // Reacts to the cursor on top of its idle spin, not just the camera —
-    // makes the object itself feel touchable rather than just decorative.
-    const targetX = idleX + pointer.y * 0.35;
-    const targetY = idleY + pointer.x * 0.35;
-    mesh.current.rotation.x += (targetX - mesh.current.rotation.x) * 0.06;
-    mesh.current.rotation.y += (targetY - mesh.current.rotation.y) * 0.06;
-  });
-
-  return (
-    <Float speed={1.4} rotationIntensity={0.4} floatIntensity={1.1}>
-      <mesh ref={mesh}>
-        <icosahedronGeometry args={[1.25, 6]} />
-        <MeshDistortMaterial
-          color="#ffd039"
-          emissive="#b8860b"
-          emissiveIntensity={0.22}
-          distort={0.48}
-          speed={1.7}
-          roughness={0.22}
-          metalness={0.28}
-        />
-      </mesh>
-    </Float>
-  );
-}
+// The abstract gold blob used to live here — replaced by the real duotone
+// photo of Rajeev rendered behind this canvas; the rings/particles now orbit
+// him instead of a shape.
 
 function SatelliteShapes() {
   const group = useRef<THREE.Group>(null);
@@ -115,7 +79,6 @@ export default function HeroScene({ reducedMotion }: { reducedMotion: boolean })
       <directionalLight position={[0, 4, 5]} intensity={0.35} color="#f6f0e6" />
 
       <group position={[1.1, -0.1, 0]}>
-        <CoreBlob reducedMotion={reducedMotion} />
         {!reducedMotion && <SatelliteShapes />}
         <OrbitRing radius={1.85} speed={0.06} color="#ffe58f" tilt={1.15} />
         <OrbitRing radius={2.25} speed={-0.04} color="#f6f0e6" tilt={1.4} />

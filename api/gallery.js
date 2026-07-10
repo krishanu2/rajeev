@@ -8,7 +8,8 @@ export default async (req, res) => {
     const { rows } = await getPool().query(
       "select id, name, review, before_img, after_img from gallery order by sort_order asc, id asc"
     );
-    res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=600");
+    // Deliberately uncached: when Rajeev adds a photo in the admin it must
+    // appear on the site immediately, not after a cache window.
     res.status(200).json({
       items: rows.map((r) => ({
         id: r.id,
