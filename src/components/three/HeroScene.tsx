@@ -44,7 +44,7 @@ function CoreBlob({ reducedMotion }: { reducedMotion: boolean }) {
       <mesh ref={mesh}>
         <icosahedronGeometry args={[1.25, 6]} />
         <MeshDistortMaterial
-          color="#f0b429"
+          color="#ffd039"
           emissive="#b8860b"
           emissiveIntensity={0.22}
           distort={0.48}
@@ -72,7 +72,7 @@ function SatelliteShapes() {
       </Float>
       <Float speed={1.6} rotationIntensity={1.2} floatIntensity={1.6} position={[-2.4, -0.8, 0.4]}>
         <Icosahedron args={[0.16, 0]}>
-          <meshStandardMaterial color="#fde68a" roughness={0.2} metalness={0.5} />
+          <meshStandardMaterial color="#ffe58f" roughness={0.2} metalness={0.5} />
         </Icosahedron>
       </Float>
       <Float speed={1.2} rotationIntensity={0.8} floatIntensity={1.4} position={[1.6, -1.4, 0.8]}>
@@ -117,7 +117,7 @@ export default function HeroScene({ reducedMotion }: { reducedMotion: boolean })
       <group position={[1.1, -0.1, 0]}>
         <CoreBlob reducedMotion={reducedMotion} />
         {!reducedMotion && <SatelliteShapes />}
-        <OrbitRing radius={1.85} speed={0.06} color="#fde68a" tilt={1.15} />
+        <OrbitRing radius={1.85} speed={0.06} color="#ffe58f" tilt={1.15} />
         <OrbitRing radius={2.25} speed={-0.04} color="#f6f0e6" tilt={1.4} />
       </group>
       {!reducedMotion && <Sparkles count={60} scale={7} size={2} speed={0.25} color="#f6f0e6" opacity={0.35} />}

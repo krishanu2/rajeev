@@ -15,9 +15,13 @@
 
   /* FWR brand: gold / black / white — "ember" naming kept internally so
      every existing bg-ember/text-ember/etc. class retints automatically */
-  --color-ember: #f0b429;
+  /* Gold matched to the brand file's true yellow (was #f0b429 — read as
+     "muted" next to the real logo) */
+  --color-ember: #ffd039;
   --color-ember-dark: #b8860b;
-  --color-ember-light: #fde68a;
+  --color-ember-light: #ffe58f;
+  /* Brand accent pink — seasoning only: quote marks, tiny dots/dividers */
+  --color-accent-pink: #ea94be;
 
   --color-moss: #4d5c3a;
   --color-moss-light: #8ca377;

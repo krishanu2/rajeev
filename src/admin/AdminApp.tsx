@@ -25,6 +25,35 @@ type Client = {
 type Stats = { totalClients: number; newThisMonth: number; callsNext7Days: number };
 type WeekDay = { date: string; booked: number; blocked: number; open: number };
 type Faq = { id: number; question: string; answer: string };
+type GalleryItem = { id: number; name: string; review: string; before_img: string | null; after_img: string };
+
+const GALLERY_NAME_MAX = 40;
+const GALLERY_REVIEW_MAX = 90;
+
+// Shrinks any phone photo down to a web-friendly JPEG before upload, so
+// Rajeev can pick 5MB camera shots without thinking about file size.
+function fileToDataUrl(file: File, maxSide = 700): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        const ctx = c.getContext("2d");
+        if (!ctx) return reject(new Error("canvas"));
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", 0.78));
+      };
+      img.onerror = reject;
+      img.src = reader.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 const STATUSES = ["lead", "active", "paused", "completed"] as const;
 const STATUS_COLORS: Record<string, string> = {
@@ -52,7 +81,7 @@ export default function AdminApp() {
   const [input, setInput] = useState("");
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [tab, setTab] = useState<"schedule" | "clients" | "faqs">("schedule");
+  const [tab, setTab] = useState<"schedule" | "clients" | "faqs" | "gallery">("schedule");
 
   // Schedule state
   const [date, setDate] = useState(todayIso());
@@ -67,6 +96,18 @@ export default function AdminApp() {
   const [faqDrafts, setFaqDrafts] = useState<Record<number, { question: string; answer: string }>>({});
   const [newFaq, setNewFaq] = useState({ question: "", answer: "" });
   const [faqBusy, setFaqBusy] = useState(false);
+
+  // Gallery state
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [newCard, setNewCard] = useState<{ name: string; review: string; before: string | null; after: string | null }>({
+    name: "",
+    review: "",
+    before: null,
+    after: null,
+  });
+  const [galleryBusy, setGalleryBusy] = useState(false);
+  // Bumping this remounts the file inputs so they visibly clear after adding.
+  const [galleryFormKey, setGalleryFormKey] = useState(0);
 
   // Clients state
   const [clients, setClients] = useState<Client[]>([]);
@@ -141,6 +182,29 @@ export default function AdminApp() {
     }
   };
 
+  const loadGallery = (k: string) => {
+    fetch("/api/admin/gallery", { headers: headers(k) })
+      .then((r) => r.json())
+      .then((data) => setGalleryItems(data.items || []))
+      .catch(() => {});
+  };
+
+  const galleryAction = async (body: Record<string, unknown>) => {
+    setGalleryBusy(true);
+    try {
+      const res = await fetch("/api/admin/gallery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers(key || "testing") },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.items) setGalleryItems(data.items);
+      return res.ok;
+    } finally {
+      setGalleryBusy(false);
+    }
+  };
+
   useEffect(() => {
     // TEMPORARY: login gate disabled for testing — auto-loads regardless of key.
     const k = key || "testing";
@@ -148,6 +212,7 @@ export default function AdminApp() {
     loadWeek(k);
     loadClients(k);
     loadFaqs(k);
+    loadGallery(k);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -260,15 +325,22 @@ export default function AdminApp() {
         )}
 
         <div className="mt-8 flex gap-1 rounded-full border border-cream/10 bg-ink-soft p-1">
-          {(["schedule", "clients", "faqs"] as const).map((t) => (
+          {(
+            [
+              ["schedule", "Schedule"],
+              ["clients", "Clients"],
+              ["faqs", "FAQs"],
+              ["gallery", "Gallery"],
+            ] as const
+          ).map(([t, label]) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+              className={`flex-1 rounded-full px-2 py-2 text-sm font-semibold transition-colors sm:px-4 ${
                 tab === t ? "bg-ember text-ink" : "text-cream-dim hover:text-cream"
               }`}
             >
-              {t === "faqs" ? "FAQs" : t === "schedule" ? "Schedule" : "Clients"}
+              {label}
             </button>
           ))}
         </div>
@@ -551,6 +623,155 @@ export default function AdminApp() {
               {faqs.length === 0 && (
                 <p className="text-sm text-cream-dim">
                   No questions yet — add the first one above and it appears on the site instantly.
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
+        {tab === "gallery" && (
+          <>
+            <p className="mt-6 text-xs leading-relaxed text-cream-dim/70">
+              These photos scroll across the "Real people. Real change." wall on the website.
+              Add a client's photo (before photo optional), their name and one short line —
+              changes go live immediately.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-ember/25 bg-ember/5 p-4" key={galleryFormKey}>
+              <p className="text-sm font-semibold text-cream">Add a photo to the wall</p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                {(
+                  [
+                    ["before", "BEFORE photo (optional)"],
+                    ["after", "AFTER photo (required)"],
+                  ] as const
+                ).map(([which, label]) => (
+                  <label
+                    key={which}
+                    className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-cream/25 bg-ink px-3 py-4 text-center hover:border-ember/60"
+                  >
+                    {newCard[which] ? (
+                      <img src={newCard[which]!} alt={which} className="h-24 w-full rounded-lg object-cover object-top" />
+                    ) : (
+                      <span className="text-2xl text-cream-dim/50">＋</span>
+                    )}
+                    <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-cream-dim">
+                      {newCard[which] ? "Tap to change" : label}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        const dataUrl = await fileToDataUrl(f);
+                        setNewCard((c) => ({ ...c, [which]: dataUrl }));
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="mt-3">
+                <input
+                  value={newCard.name}
+                  maxLength={GALLERY_NAME_MAX}
+                  onChange={(e) => setNewCard((c) => ({ ...c, name: e.target.value }))}
+                  placeholder="Client's name (e.g. Sangeeth)"
+                  className="w-full rounded-lg border border-cream/15 bg-ink px-4 py-3 text-sm text-cream placeholder:text-cream-dim/40 focus:border-ember focus:outline-none"
+                />
+                <p className="mt-1 text-right text-[0.65rem] text-cream-dim/50">
+                  {GALLERY_NAME_MAX - newCard.name.length} letters left
+                </p>
+              </div>
+              <div>
+                <input
+                  value={newCard.review}
+                  maxLength={GALLERY_REVIEW_MAX}
+                  onChange={(e) => setNewCard((c) => ({ ...c, review: e.target.value }))}
+                  placeholder='One short line (e.g. "Lost 12 kg and my energy is back")'
+                  className="w-full rounded-lg border border-cream/15 bg-ink px-4 py-3 text-sm text-cream placeholder:text-cream-dim/40 focus:border-ember focus:outline-none"
+                />
+                <p className="mt-1 text-right text-[0.65rem] text-cream-dim/50">
+                  {GALLERY_REVIEW_MAX - newCard.review.length} letters left
+                </p>
+              </div>
+
+              <button
+                onClick={async () => {
+                  const ok = await galleryAction({
+                    action: "add",
+                    name: newCard.name,
+                    review: newCard.review,
+                    before: newCard.before,
+                    after: newCard.after,
+                  });
+                  if (ok) {
+                    setNewCard({ name: "", review: "", before: null, after: null });
+                    setGalleryFormKey((k) => k + 1);
+                  }
+                }}
+                disabled={galleryBusy || !newCard.after || !newCard.name.trim() || !newCard.review.trim()}
+                className="mt-2 rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-ink disabled:opacity-40"
+              >
+                {galleryBusy ? "Adding…" : "Add to website gallery"}
+              </button>
+              {!newCard.after && (
+                <p className="mt-2 text-[0.65rem] text-cream-dim/50">
+                  The AFTER photo, name and one line are needed before the button works.
+                </p>
+              )}
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3">
+              {galleryItems.map((g, i) => (
+                <div key={g.id} className="flex items-center gap-3 rounded-xl border border-cream/10 bg-ink-soft p-3">
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => galleryAction({ action: "move", id: g.id, dir: "up" })}
+                      disabled={galleryBusy || i === 0}
+                      aria-label="Move up"
+                      className="rounded-md border border-cream/10 px-2 py-0.5 text-xs text-cream-dim hover:text-cream disabled:opacity-20"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => galleryAction({ action: "move", id: g.id, dir: "down" })}
+                      disabled={galleryBusy || i === galleryItems.length - 1}
+                      aria-label="Move down"
+                      className="rounded-md border border-cream/10 px-2 py-0.5 text-xs text-cream-dim hover:text-cream disabled:opacity-20"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    {g.before_img && (
+                      <img src={g.before_img} alt="before" className="h-14 w-11 rounded-md object-cover object-top" />
+                    )}
+                    <img src={g.after_img} alt="after" className="h-14 w-11 rounded-md object-cover object-top" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-cream">{g.name}</p>
+                    <p className="truncate text-xs text-cream-dim">{g.review}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Remove ${g.name}'s photo from the website?`)) {
+                        galleryAction({ action: "delete", id: g.id });
+                      }
+                    }}
+                    disabled={galleryBusy}
+                    className="shrink-0 text-xs font-semibold text-red-400 underline disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              {galleryItems.length === 0 && (
+                <p className="text-sm text-cream-dim">
+                  No photos yet — add the first one above and the gallery section appears on the site instantly.
                 </p>
               )}
             </div>

@@ -6,6 +6,7 @@ import Manifesto from "./components/Manifesto";
 import Story from "./components/Story";
 import Results from "./components/Results";
 import Testimonials from "./components/Testimonials";
+import Gallery from "./components/Gallery";
 import Programs from "./components/Programs";
 import FunWithFitness from "./components/FunWithFitness";
 import FAQ from "./components/FAQ";
@@ -40,6 +41,7 @@ export default function App() {
         </Beat>
         <Beat id="evidence" tone="evidence">
           <Results />
+          <Gallery />
           <Testimonials />
         </Beat>
         <Beat id="invitation" tone="invitation">

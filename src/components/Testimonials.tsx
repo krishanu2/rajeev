@@ -29,7 +29,7 @@ export default function Testimonials() {
       </p>
 
       <div className="container-px relative mx-auto flex min-h-[22rem] max-w-4xl flex-col items-center justify-center text-center">
-        <Quote className="text-ember/50" size={40} strokeWidth={1.2} />
+        <Quote className="text-accent-pink/70" size={40} strokeWidth={1.2} />
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -81,7 +81,7 @@ export default function Testimonials() {
               aria-label={`Show testimonial ${i + 1}`}
               onClick={() => setActive(i)}
               className={`h-1.5 rounded-full transition-all ${
-                i === active ? "w-7 bg-ember" : "w-1.5 bg-cream/25 hover:bg-cream/50"
+                i === active ? "w-7 bg-accent-pink" : "w-1.5 bg-cream/25 hover:bg-cream/50"
               }`}
             />
           ))}
