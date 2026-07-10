@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/admin/:op", "destination": "/api/admin?op=:op" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
