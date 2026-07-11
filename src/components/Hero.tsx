@@ -1,13 +1,10 @@
-import { Suspense, lazy, useRef } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { hero } from "../data/content";
-import { useReducedMotion } from "../hooks/useReducedMotion";
 import StatCounter from "./StatCounter";
 import Magnetic from "./Magnetic";
-import rajeevCutout from "../assets/rajeev-cutout.png";
-
-const HeroScene = lazy(() => import("./three/HeroScene"));
+import rajeevHero from "../assets/rajeev-hero.jpg";
 
 const wordVariants = {
   hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
@@ -28,7 +25,6 @@ const line2Container = {
 };
 
 export default function Hero() {
-  const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -39,32 +35,29 @@ export default function Hero() {
 
   return (
     <section id="top" ref={sectionRef} className="relative h-[125svh] bg-ink sm:h-[145svh]">
-      {/* Sticky inner wrapper pins the 3D canvas while the headline/copy
+      {/* Sticky inner wrapper pins the photo while the headline/copy
           scrolls and fades past it, instead of both scrolling away together */}
       <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-24 sm:pt-28">
         <div className="absolute inset-0 -z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(240,180,41,0.16),transparent)]" />
-          {/* Rajeev himself, cut out of the gym and standing on the site's own
-              dark backdrop — clean subject, no photo rectangle. The gold glow
-              behind him and the orbit rings make him part of the design. */}
-          <div className="absolute inset-y-0 right-0 w-full md:w-[55%]">
-            <div className="absolute bottom-[6%] right-[10%] h-[60%] w-[75%] rounded-full bg-ember/[0.13] blur-[110px]" />
-            <div className="absolute inset-x-0 bottom-0 top-[10%] flex items-end justify-center opacity-60 md:justify-end md:pr-[7%] md:opacity-100">
-              <img
-                src={rajeevCutout}
-                alt=""
-                aria-hidden
-                draggable={false}
-                className="h-full w-auto select-none object-contain object-bottom [filter:contrast(1.06)_saturate(0.9)_brightness(0.95)]"
-              />
-            </div>
+          {/* Rajeev in his real gym, natural colors — the photo's own dark
+              surroundings blend into the page, with straight gradient falloff
+              on every edge so there's no visible photo border. */}
+          <div className="absolute inset-y-0 right-0 w-full md:w-[62%]">
+            <img
+              src={rajeevHero}
+              alt=""
+              aria-hidden
+              draggable={false}
+              className="h-full w-full select-none object-cover object-[50%_20%] brightness-[0.88] contrast-[1.02]"
+            />
+            {/* edge falloff into the ink background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/30 to-transparent" />
+            <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-ink/80 to-transparent" />
+            <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-ink/90 to-transparent" />
           </div>
-          <Suspense fallback={null}>
-            <HeroScene reducedMotion={reducedMotion} />
-          </Suspense>
           {/* Scrim keeps copy readable over the photo */}
-          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/10 md:via-ink/60 md:to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/10 md:via-ink/50 md:to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-ink to-transparent" />
         </div>
 
         <motion.div
