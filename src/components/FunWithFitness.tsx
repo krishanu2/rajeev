@@ -28,7 +28,7 @@ export default function FunWithFitness() {
                     src={rajeevCommunity}
                     alt="Rajeev at a Fun with Fitness meetup"
                     loading="lazy"
-                    className="h-52 w-full object-cover object-[50%_25%] md:h-56"
+                    className="aspect-[4/3] w-full object-cover object-[50%_15%]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
                 </div>

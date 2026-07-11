@@ -5,7 +5,7 @@ import { hero } from "../data/content";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import StatCounter from "./StatCounter";
 import Magnetic from "./Magnetic";
-import rajeevHero from "../assets/rajeev-hero.jpg";
+import rajeevCutout from "../assets/rajeev-cutout.png";
 
 const HeroScene = lazy(() => import("./three/HeroScene"));
 
@@ -44,17 +44,20 @@ export default function Hero() {
       <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-24 sm:pt-28">
         <div className="absolute inset-0 -z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(240,180,41,0.16),transparent)]" />
-          {/* Rajeev himself, gold-on-black duotone so the photo reads as brand
-              atmosphere rather than a pasted photograph — the "personal touch"
-              the old site's hero had. Edges dissolve into the ink background. */}
-          <div className="absolute inset-y-0 right-0 w-full md:w-[62%]">
-            <img
-              src={rajeevHero}
-              alt=""
-              aria-hidden
-              draggable={false}
-              className="h-full w-full select-none object-cover object-[55%_22%] [filter:grayscale(1)_sepia(1)_hue-rotate(-12deg)_saturate(1.7)_brightness(0.72)_contrast(1.1)] [mask-image:radial-gradient(ellipse_72%_88%_at_62%_42%,black_42%,transparent_76%)]"
-            />
+          {/* Rajeev himself, cut out of the gym and standing on the site's own
+              dark backdrop — clean subject, no photo rectangle. The gold glow
+              behind him and the orbit rings make him part of the design. */}
+          <div className="absolute inset-y-0 right-0 w-full md:w-[55%]">
+            <div className="absolute bottom-[6%] right-[10%] h-[60%] w-[75%] rounded-full bg-ember/[0.13] blur-[110px]" />
+            <div className="absolute inset-x-0 bottom-0 top-[10%] flex items-end justify-center opacity-60 md:justify-end md:pr-[7%] md:opacity-100">
+              <img
+                src={rajeevCutout}
+                alt=""
+                aria-hidden
+                draggable={false}
+                className="h-full w-auto select-none object-contain object-bottom [filter:contrast(1.06)_saturate(0.9)_brightness(0.95)]"
+              />
+            </div>
           </div>
           <Suspense fallback={null}>
             <HeroScene reducedMotion={reducedMotion} />
