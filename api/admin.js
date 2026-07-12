@@ -35,14 +35,23 @@ async function opDay(req, res, pool) {
     return;
   }
   const { rows } = await pool.query(
-    "select slot_time, status, name, contact, meet_link, focus from slot_events where slot_date = $1",
+    "select slot_time, status, name, contact, phone, reason, meet_link, focus from slot_events where slot_date = $1",
     [date]
   );
   const byTime = new Map(rows.map((r) => [r.slot_time.slice(0, 5), r]));
   const slots = SLOT_TIMES.map((time) => {
     const row = byTime.get(time);
     return row
-      ? { time, status: row.status, name: row.name, contact: row.contact, meetLink: row.meet_link, focus: row.focus }
+      ? {
+          time,
+          status: row.status,
+          name: row.name,
+          contact: row.contact,
+          phone: row.phone,
+          reason: row.reason,
+          meetLink: row.meet_link,
+          focus: row.focus,
+        }
       : { time, status: "open" };
   });
   res.status(200).json({ date, slots });
@@ -175,7 +184,7 @@ async function opClients(req, res, pool) {
     where = "where name ilike $1 or email ilike $1 or focus ilike $1";
   }
   const { rows: clients } = await pool.query(
-    `select id, email, name, focus, status, notes, total_bookings,
+    `select id, email, name, phone, focus, status, notes, total_bookings,
             to_char(last_booking, 'YYYY-MM-DD') as last_booking,
             to_char(first_seen at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as first_seen
      from clients ${where}

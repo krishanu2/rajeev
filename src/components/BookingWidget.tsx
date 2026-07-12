@@ -48,6 +48,8 @@ export default function BookingWidget() {
   const [picked, setPicked] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [phone, setPhone] = useState("");
+  const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -78,15 +80,18 @@ export default function BookingWidget() {
     fetch(`/api/slots?date=${selectedDate}`).then((r) => r.json()).then((d) => setSlots(d.slots || []));
   };
 
+  const canSubmit =
+    !!name.trim() && !!contact.trim() && phone.trim().replace(/\D/g, "").length >= 7 && !!reason.trim();
+
   const submit = async () => {
-    if (!picked || !selectedDate || !name.trim() || !contact.trim()) return;
+    if (!picked || !selectedDate || !canSubmit) return;
     setSubmitting(true);
     setError("");
     try {
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: selectedDate, time: picked, name, contact, focus: selectedLabel }),
+        body: JSON.stringify({ date: selectedDate, time: picked, name, contact, phone, reason, focus: selectedLabel }),
       });
       if (res.status === 409) {
         setError("That slot was just taken — pick another.");
@@ -249,10 +254,25 @@ export default function BookingWidget() {
                   placeholder="Your email (for the calendar invite)"
                   className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
                 />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Phone / WhatsApp number"
+                  className="rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
+                />
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  maxLength={300}
+                  rows={2}
+                  placeholder="In one line — what do you want help with?"
+                  className="resize-none rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
+                />
                 {error && <p className="text-sm text-red-400">{error}</p>}
                 <button
                   onClick={submit}
-                  disabled={submitting || !name.trim() || !contact.trim()}
+                  disabled={submitting || !canSubmit}
                   className="rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-105 active:scale-[0.97] disabled:opacity-50 disabled:active:scale-100"
                 >
                   {submitting ? "Booking…" : `Confirm ${selectedDate} at ${picked}`}

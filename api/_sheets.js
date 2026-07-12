@@ -54,22 +54,22 @@ export async function syncClientsToSheet() {
     if (!sheetId) return;
 
     const { rows } = await getPool().query(
-      `select name, email, focus, status, notes, total_bookings,
+      `select name, email, phone, focus, status, notes, total_bookings,
               to_char(last_booking, 'YYYY-MM-DD') as last_booking,
               to_char(first_seen at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as first_seen
        from clients order by last_booking desc nulls last, first_seen desc`
     );
     const values = [
-      ["Name", "Email", "Focus area", "Status", "Notes", "Total bookings", "Last booking", "First seen"],
+      ["Name", "Email", "Phone", "Focus area", "Status", "Notes", "Total bookings", "Last booking", "First seen"],
       ...rows.map((r) => [
-        r.name, r.email, r.focus || "", r.status, r.notes,
+        r.name, r.email, r.phone || "", r.focus || "", r.status, r.notes,
         String(r.total_bookings), r.last_booking || "", r.first_seen,
       ]),
     ];
 
     const base = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values`;
     // Clear first so rows deleted from the DB don't linger at the bottom.
-    await fetch(`${base}/Clients!A:H:clear`, {
+    await fetch(`${base}/Clients!A:I:clear`, {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}` },
     });

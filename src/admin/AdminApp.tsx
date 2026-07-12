@@ -6,6 +6,8 @@ type Slot = {
   status: "open" | "blocked" | "booked";
   name?: string;
   contact?: string;
+  phone?: string | null;
+  reason?: string | null;
   meetLink?: string | null;
   focus?: string | null;
 };
@@ -14,6 +16,7 @@ type Client = {
   id: number;
   email: string;
   name: string;
+  phone: string | null;
   focus: string | null;
   status: "lead" | "active" | "paused" | "completed";
   notes: string;
@@ -456,6 +459,12 @@ export default function AdminApp() {
                       <>
                         <p className="mt-2 text-xs text-cream">{s.name}</p>
                         <p className="break-all text-xs text-cream-dim">{s.contact}</p>
+                        {s.phone && (
+                          <a href={`tel:${s.phone}`} className="block text-xs text-cream-dim underline">
+                            {s.phone}
+                          </a>
+                        )}
+                        {s.reason && <p className="mt-1 text-[0.65rem] italic text-cream-dim/80">"{s.reason}"</p>}
                         {s.focus && <p className="mt-1 text-[0.65rem] text-ember-light">{s.focus}</p>}
                         {s.meetLink && (
                           <a
@@ -800,6 +809,11 @@ export default function AdminApp() {
                       <div className="min-w-0">
                         <p className="font-semibold text-cream">{c.name}</p>
                         <p className="break-all text-xs text-cream-dim">{c.email}</p>
+                        {c.phone && (
+                          <a href={`tel:${c.phone}`} className="text-xs text-cream-dim underline">
+                            {c.phone}
+                          </a>
+                        )}
                         {c.focus && (
                           <span className="mt-1.5 inline-block rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 text-[0.65rem] text-ember-light">
                             {c.focus}

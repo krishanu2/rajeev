@@ -9,9 +9,17 @@ export default async (req, res) => {
     res.status(405).json({ error: "POST only" });
     return;
   }
-  const { date, time, name, contact, focus } = req.body || {};
+  const { date, time, name, contact, phone, reason, focus } = req.body || {};
   if (!date || !time || !name || !contact || !SLOT_TIMES.includes(time)) {
     res.status(400).json({ error: "date, time, name, contact required" });
+    return;
+  }
+  if (!phone?.trim() || phone.trim().replace(/\D/g, "").length < 7) {
+    res.status(400).json({ error: "a valid phone number is required" });
+    return;
+  }
+  if (!reason?.trim()) {
+    res.status(400).json({ error: "please tell us briefly why you're booking" });
     return;
   }
   // Slot times are IST wall-clock — compare against the absolute instant so
@@ -26,10 +34,10 @@ export default async (req, res) => {
     // safe against two people booking the same slot at the same instant —
     // the database itself only lets one of the two concurrent inserts win.
     const { rowCount } = await getPool().query(
-      `insert into slot_events (slot_date, slot_time, status, name, contact, focus)
-       values ($1, $2, 'booked', $3, $4, $5)
+      `insert into slot_events (slot_date, slot_time, status, name, contact, phone, reason, focus)
+       values ($1, $2, 'booked', $3, $4, $5, $6, $7)
        on conflict (slot_date, slot_time) do nothing`,
-      [date, time, name, contact, focus || null]
+      [date, time, name, contact, phone.trim(), reason.trim().slice(0, 300), focus || null]
     );
     if (rowCount === 0) {
       res.status(409).json({ error: "That slot was just taken. Please pick another." });
@@ -40,14 +48,15 @@ export default async (req, res) => {
     // A repeat client keeps their status/notes; only the booking counters and
     // (if newly provided) focus area move.
     await getPool().query(
-      `insert into clients (email, name, focus, last_booking, total_bookings)
-       values ($1, $2, $3, $4, 1)
+      `insert into clients (email, name, phone, focus, last_booking, total_bookings)
+       values ($1, $2, $3, $4, $5, 1)
        on conflict (email) do update set
          name = excluded.name,
+         phone = excluded.phone,
          focus = coalesce(excluded.focus, clients.focus),
          last_booking = excluded.last_booking,
          total_bookings = clients.total_bookings + 1`,
-      [contact.trim().toLowerCase(), name.trim(), focus || null, date]
+      [contact.trim().toLowerCase(), name.trim(), phone.trim(), focus || null, date]
     );
 
     // If Rajeev's Google Calendar is connected, this creates the event with
@@ -55,7 +64,7 @@ export default async (req, res) => {
     // customer and admin(s) — exactly how Calendly does it. If it's not
     // connected yet, this quietly returns null and we fall back to a plain
     // confirmation email below instead.
-    const meetLink = await createMeetEvent({ date, time, name, contact, focus });
+    const meetLink = await createMeetEvent({ date, time, name, contact, phone, reason, focus });
     if (meetLink) {
       await getPool().query(
         "update slot_events set meet_link = $1 where slot_date = $2 and slot_time = $3",
@@ -95,6 +104,8 @@ export default async (req, res) => {
           <h2 style="margin:0 0 12px">New consultation booked</h2>
           <p style="margin:0"><strong>${name}</strong></p>
           <p style="margin:0">${contact}</p>
+          <p style="margin:0">📞 ${phone}</p>
+          <p style="margin:8px 0 0">Reason: ${reason.trim().slice(0, 300)}</p>
           ${focus ? `<p style="margin:0">Focus area: <strong>${focus}</strong></p>` : ""}
           <p style="margin:12px 0 0"><strong>${date} at ${time} IST</strong> (30 min)</p>
           ${meetLink ? `<p style="margin:12px 0 0"><a href="${meetLink}">Join with Google Meet</a></p>` : ""}
