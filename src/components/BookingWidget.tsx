@@ -116,10 +116,10 @@ export default function BookingWidget() {
         <p className="mt-2 text-sm text-cream-dim">
           {selectedDate} at {picked} IST — I'll see you then.
         </p>
-        {/* Calendly-style: no link shown here — the calendar invitation in
-            their inbox carries the Google Meet link. */}
+        {/* Calendly-style: no link, no mention of the meeting tool — the
+            calendar invitation in their inbox carries everything. */}
         <p className="mx-auto mt-5 max-w-xs text-sm leading-relaxed text-cream-dim/80">
-          A calendar invitation with the Google Meet link is on its way to your email inbox.
+          A calendar invitation with all the details is on its way to your email inbox.
         </p>
       </div>
     );
