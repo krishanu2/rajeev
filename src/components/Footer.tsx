@@ -42,16 +42,6 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    href={site.funWithFitnessUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
-                  >
-                    <AtSign size={15} /> Fun with Fitness
-                  </a>
-                </li>
-                <li>
-                  <a
                     href={`mailto:${site.email}`}
                     className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
                   >
