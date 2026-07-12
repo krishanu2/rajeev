@@ -1,6 +1,7 @@
 import { getPool, SLOT_TIMES, slotInstant } from "./_db.js";
 import { buildIcs, googleCalendarLink, looksLikeEmail, sendEmail } from "./_email.js";
 import { createMeetEvent } from "./_google.js";
+import { sendGmail } from "./_gmail.js";
 import { syncClientsToSheet } from "./_sheets.js";
 
 export default async (req, res) => {
@@ -81,6 +82,26 @@ export default async (req, res) => {
             })
           : Promise.resolve(),
       ]);
+    }
+
+    // Rajeev is the ORGANIZER of the calendar event, and Google only emails
+    // guests — never the organizer — so his "new booking" alert is sent
+    // explicitly here, from his own Gmail to his own inbox.
+    if (process.env.ADMIN_EMAILS) {
+      await sendGmail({
+        to: process.env.ADMIN_EMAILS.split(",").map((s) => s.trim()),
+        subject: `New booking: ${name} — ${date} at ${time} IST`,
+        html: `<div style="font-family:sans-serif;line-height:1.6">
+          <h2 style="margin:0 0 12px">New consultation booked</h2>
+          <p style="margin:0"><strong>${name}</strong></p>
+          <p style="margin:0">${contact}</p>
+          ${focus ? `<p style="margin:0">Focus area: <strong>${focus}</strong></p>` : ""}
+          <p style="margin:12px 0 0"><strong>${date} at ${time} IST</strong> (30 min)</p>
+          ${meetLink ? `<p style="margin:12px 0 0"><a href="${meetLink}">Join with Google Meet</a></p>` : ""}
+          <p style="margin:16px 0 0;color:#888;font-size:13px">The event is already on your Google Calendar.
+          Manage bookings at <a href="https://fitwithrajeev.com/admin">fitwithrajeev.com/admin</a></p>
+        </div>`,
+      });
     }
 
     // Mirror the updated client list to the Google Sheet. Must be awaited —

@@ -12,8 +12,11 @@ export default async (req, res) => {
     redirect_uri: redirectUri,
     response_type: "code",
     // calendar.events → Meet links + invites; spreadsheets → the auto-synced
-    // "FWR Clients" sheet. One consent covers both.
-    scope: "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/spreadsheets",
+    // "FWR Clients" sheet; gmail.send → "new booking" emails to Rajeev
+    // (Google never emails organizers about their own events, so the site
+    // sends that notification itself, from his own Gmail).
+    scope:
+      "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send",
     access_type: "offline",
     prompt: "consent",
   });
