@@ -1,5 +1,5 @@
-import { Users, Mountain, PartyPopper } from "lucide-react";
-import { community } from "../data/content";
+import { ArrowUpRight, Users, Mountain, PartyPopper } from "lucide-react";
+import { community, site } from "../data/content";
 import Reveal from "./Reveal";
 import rajeevCommunity from "../assets/rajeev-community.jpg";
 
@@ -20,6 +20,15 @@ export default function FunWithFitness() {
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-cream-dim">
                   {community.sub}
                 </p>
+                <a
+                  href={site.funWithFitnessUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-ember-light transition-colors hover:text-cream"
+                >
+                  {community.cta}
+                  <ArrowUpRight size={16} />
+                </a>
               </div>
 
               <div className="flex flex-col gap-3">

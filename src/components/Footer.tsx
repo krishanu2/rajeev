@@ -33,9 +33,21 @@ export default function Footer() {
                 <li>
                   <a
                     href={site.instagramUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
                   >
                     <AtSign size={15} /> Instagram
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={site.funWithFitnessUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
+                  >
+                    <AtSign size={15} /> Fun with Fitness
                   </a>
                 </li>
                 <li>

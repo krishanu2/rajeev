@@ -14,7 +14,8 @@ export const site = {
   name: "FWR",
   fullName: "Fit with Rajeev",
   tagline: "Coach. Not a prescription.",
-  instagramUrl: "https://instagram.com/rajeevhb", // [[confirm handle]]
+  instagramUrl: "https://www.instagram.com/coach.rajeevhb",
+  funWithFitnessUrl: "https://www.instagram.com/fun.wth.fitness",
   email: "rajeevhb.91@gmail.com",
   city: "Bengaluru, India",
 };
@@ -332,6 +333,7 @@ export const community = {
   heading: "Fun with Fitness",
   sub:
     "The community I built for people who want movement to feel like play again — group treks, social workouts, adventure meetups. Proof this doesn't have to be miserable.",
+  cta: "Follow Fun with Fitness on Instagram",
 };
 
 export const cta = {
