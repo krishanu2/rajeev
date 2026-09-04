@@ -2,5 +2,8 @@
   "rewrites": [
     { "source": "/api/admin/:op", "destination": "/api/admin?op=:op" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/reminders", "schedule": "30 1 * * *" }
   ]
 }

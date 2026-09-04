@@ -5,6 +5,7 @@ import { hero } from "../data/content";
 import StatCounter from "./StatCounter";
 import Magnetic from "./Magnetic";
 import rajeevHero from "../assets/rajeev-hero.jpg";
+import { useSelection } from "../context/SelectionContext";
 
 const wordVariants = {
   hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
@@ -26,6 +27,7 @@ const line2Container = {
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+  const { referrerName } = useSelection();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -35,9 +37,15 @@ export default function Hero() {
 
   return (
     <section id="top" ref={sectionRef} className="relative h-[125svh] bg-ink sm:h-[145svh]">
-      {/* Sticky inner wrapper pins the photo while the headline/copy
-          scrolls and fades past it, instead of both scrolling away together */}
-      <div className="sticky top-0 flex h-[100svh] items-start overflow-hidden pt-24 sm:pt-28">
+      {/* Sticky inner wrapper pins the photo while the headline/copy scrolls
+          and fades past it, instead of both scrolling away together. Extra
+          pt when the referral banner is showing — it adds a fixed, known
+          2.5rem to Nav's height, so this compensates by exactly that much. */}
+      <div
+        className={`sticky top-0 flex h-[100svh] items-start overflow-hidden ${
+          referrerName ? "pt-[8.5rem] sm:pt-[9.5rem]" : "pt-24 sm:pt-28"
+        }`}
+      >
         <div className="absolute inset-0 -z-0">
           {/* Rajeev in his real gym, natural colors — the photo's own dark
               surroundings blend into the page, with straight gradient falloff

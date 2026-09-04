@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { cta } from "../data/content";
 import BookingWidget from "./BookingWidget";
+import LiveStats from "./LiveStats";
 import Reveal from "./Reveal";
 import fwrBadge from "../assets/fwr-badge.png";
 
@@ -52,6 +53,7 @@ export default function CTA() {
             <p className="mt-4 text-xs text-cream-dim/60">
               Pick a date and time that works for you — takes under a minute.
             </p>
+            <LiveStats />
           </Reveal>
         )}
       </div>

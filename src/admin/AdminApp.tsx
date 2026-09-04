@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import fwrLogo from "../assets/fwr-logo.png";
 
 type Slot = {
@@ -37,7 +38,17 @@ type Affiliate = {
   code: string;
   createdAt: string;
   referralCount: number;
+  clickCount: number;
+  conversionRate: number | null;
   referredNames: string[];
+};
+
+type Insights = {
+  sentence: string;
+  totalBookings: number;
+  bookingsThisMonth: number;
+  weekly: { weekStart: string; count: number }[];
+  focusBreakdown: { focus: string; count: number }[];
 };
 
 const GALLERY_NAME_MAX = 40;
@@ -94,7 +105,9 @@ export default function AdminApp() {
   const [input, setInput] = useState("");
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [tab, setTab] = useState<"schedule" | "clients" | "faqs" | "gallery" | "affiliates">("schedule");
+  const [tab, setTab] = useState<
+    "schedule" | "clients" | "faqs" | "gallery" | "affiliates" | "insights"
+  >("schedule");
 
   // Schedule state
   const [date, setDate] = useState(todayIso());
@@ -127,6 +140,14 @@ export default function AdminApp() {
   const [newAffiliateName, setNewAffiliateName] = useState("");
   const [affiliatesBusy, setAffiliatesBusy] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  // Which affiliate's QR code is currently expanded, and its generated
+  // image — generated on demand (not for every affiliate up front) since
+  // it's a small CPU cost per code.
+  const [qrOpenFor, setQrOpenFor] = useState<string | null>(null);
+  const [qrImages, setQrImages] = useState<Record<string, string>>({});
+
+  // Insights state
+  const [insights, setInsights] = useState<Insights | null>(null);
 
   // Clients state
   const [clients, setClients] = useState<Client[]>([]);
@@ -247,6 +268,29 @@ export default function AdminApp() {
     }
   };
 
+  const loadInsights = (k: string) => {
+    fetch("/api/admin/insights", { headers: headers(k) })
+      .then((r) => r.json())
+      .then((data) => setInsights(data.ok ? data : null))
+      .catch(() => {});
+  };
+
+  // Generated on demand, once, then cached in memory — a QR image never
+  // needs regenerating for the same link, and nothing is fetched from any
+  // external service (drawn entirely in the browser, so it's free and
+  // works even if Rajeev's connection is slow).
+  const toggleQr = async (code: string, link: string) => {
+    if (qrOpenFor === code) {
+      setQrOpenFor(null);
+      return;
+    }
+    setQrOpenFor(code);
+    if (!qrImages[code]) {
+      const dataUrl = await QRCode.toDataURL(link, { width: 240, margin: 1, color: { dark: "#100e0b", light: "#ffffff" } });
+      setQrImages((m) => ({ ...m, [code]: dataUrl }));
+    }
+  };
+
   useEffect(() => {
     // TEMPORARY: login gate disabled for testing — auto-loads regardless of key.
     const k = key || "testing";
@@ -256,6 +300,7 @@ export default function AdminApp() {
     loadFaqs(k);
     loadGallery(k);
     loadAffiliates(k);
+    loadInsights(k);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -367,7 +412,7 @@ export default function AdminApp() {
           </div>
         )}
 
-        <div className="mt-8 flex gap-1 rounded-full border border-cream/10 bg-ink-soft p-1">
+        <div className="mt-8 flex flex-wrap gap-1.5 rounded-2xl border border-cream/10 bg-ink-soft p-1.5">
           {(
             [
               ["schedule", "Schedule"],
@@ -375,12 +420,13 @@ export default function AdminApp() {
               ["faqs", "FAQs"],
               ["gallery", "Gallery"],
               ["affiliates", "Affiliates"],
+              ["insights", "Insights"],
             ] as const
           ).map(([t, label]) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-full px-2 py-2 text-sm font-semibold transition-colors sm:px-4 ${
+              className={`rounded-full px-3.5 py-2 text-xs font-semibold transition-colors sm:text-sm ${
                 tab === t ? "bg-ember text-ink" : "text-cream-dim hover:text-cream"
               }`}
             >
@@ -880,6 +926,14 @@ export default function AdminApp() {
                       </div>
                     </div>
 
+                    {/* Real click-through data — 👁 how many people opened the
+                        link, ✅ how many of those actually booked. Shows "—"
+                        instead of a fake 0% until there's real click data. */}
+                    <p className="mt-2 font-data text-[0.7rem] text-cream-dim/70">
+                      👁 {a.clickCount} click{a.clickCount !== 1 ? "s" : ""} → ✅ {a.referralCount} booked
+                      {a.conversionRate !== null && <> · {a.conversionRate}% conversion</>}
+                    </p>
+
                     <div className="mt-3 flex items-center gap-2 rounded-lg border border-cream/10 bg-ink px-3 py-2">
                       <p className="min-w-0 flex-1 truncate font-data text-xs text-cream-dim">{link}</p>
                       <button
@@ -906,6 +960,12 @@ export default function AdminApp() {
                         {copiedCode === `msg-${a.code}` ? "Copied! Paste it in WhatsApp" : "Copy WhatsApp message"}
                       </button>
                       <button
+                        onClick={() => toggleQr(a.code, link)}
+                        className="text-xs font-semibold text-cream-dim underline hover:text-cream"
+                      >
+                        {qrOpenFor === a.code ? "Hide QR code" : "Show QR code"}
+                      </button>
+                      <button
                         onClick={() => {
                           if (
                             window.confirm(
@@ -921,6 +981,20 @@ export default function AdminApp() {
                         Delete
                       </button>
                     </div>
+
+                    {qrOpenFor === a.code && (
+                      <div className="mt-3 flex flex-col items-center gap-2 rounded-lg border border-cream/10 bg-ink p-4">
+                        {qrImages[a.code] ? (
+                          <img src={qrImages[a.code]} alt={`QR code for ${a.name}'s link`} className="h-40 w-40" />
+                        ) : (
+                          <p className="py-8 text-xs text-cream-dim">Generating…</p>
+                        )}
+                        <p className="text-center text-[0.65rem] text-cream-dim/70">
+                          Show this on your phone screen — anyone can scan it with their camera
+                          to open your link. Great for in-person, no typing needed.
+                        </p>
+                      </div>
+                    )}
 
                     {a.referredNames.length > 0 && (
                       <p className="mt-3 border-t border-cream/10 pt-2 text-[0.7rem] text-cream-dim">
@@ -939,14 +1013,130 @@ export default function AdminApp() {
           </>
         )}
 
+        {tab === "insights" && (
+          <>
+            <p className="mt-6 text-xs leading-relaxed text-cream-dim/70">
+              A plain-language look at your real booking data — nothing here is guessed,
+              it's all computed from your actual calls.
+            </p>
+
+            {insights ? (
+              <>
+                <div className="mt-4 rounded-xl border border-ember/25 bg-ember/5 p-4">
+                  <p className="text-sm leading-relaxed text-cream">💡 {insights.sentence}</p>
+                </div>
+
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-cream/10 bg-ink-soft p-4">
+                    <p className="font-data text-2xl font-semibold text-ember">{insights.totalBookings}</p>
+                    <p className="mt-1 text-[0.65rem] uppercase tracking-widest text-cream-dim">
+                      Total bookings ever
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-cream/10 bg-ink-soft p-4">
+                    <p className="font-data text-2xl font-semibold text-ember">{insights.bookingsThisMonth}</p>
+                    <p className="mt-1 text-[0.65rem] uppercase tracking-widest text-cream-dim">
+                      Bookings, last 30 days
+                    </p>
+                  </div>
+                </div>
+
+                {insights.weekly.length > 0 && (
+                  <div className="mt-5 rounded-xl border border-cream/10 bg-ink-soft p-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-cream-dim">
+                      Bookings per week
+                    </p>
+                    <div className="mt-4 flex items-end gap-2" style={{ height: 90 }}>
+                      {insights.weekly.map((w) => {
+                        const max = Math.max(...insights.weekly.map((x) => x.count), 1);
+                        return (
+                          <div key={w.weekStart} className="flex flex-1 flex-col items-center gap-1">
+                            <div
+                              className="w-full rounded-t bg-ember"
+                              style={{ height: `${Math.max(4, (w.count / max) * 70)}px` }}
+                              title={`${w.count} booking${w.count !== 1 ? "s" : ""} — week of ${w.weekStart}`}
+                            />
+                            <p className="font-data text-[0.6rem] text-cream-dim">{w.count}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-[0.65rem] text-cream-dim/50">
+                      Left = earlier, right = most recent week. Hover a bar for the exact week.
+                    </p>
+                  </div>
+                )}
+
+                {insights.focusBreakdown.length > 0 && (
+                  <div className="mt-5 rounded-xl border border-cream/10 bg-ink-soft p-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-cream-dim">
+                      Most requested focus areas
+                    </p>
+                    <div className="mt-4 flex flex-col gap-2.5">
+                      {insights.focusBreakdown.map((f) => {
+                        const max = insights.focusBreakdown[0]?.count || 1;
+                        return (
+                          <div key={f.focus}>
+                            <div className="flex items-baseline justify-between text-xs">
+                              <span className="text-cream">{f.focus}</span>
+                              <span className="font-data text-cream-dim">{f.count}</span>
+                            </div>
+                            <div className="mt-1 h-2 rounded-full bg-ink">
+                              <div
+                                className="h-2 rounded-full bg-ember-light"
+                                style={{ width: `${Math.max(6, (f.count / max) * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="mt-6 text-sm text-cream-dim">Loading…</p>
+            )}
+          </>
+        )}
+
         {tab === "clients" && (
           <>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name, email or focus area…"
-              className="mt-6 w-full rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
-            />
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search name, email or focus area…"
+                className="min-w-0 flex-1 rounded-lg border border-cream/15 bg-ink-soft px-4 py-3 text-sm text-cream placeholder:text-cream-dim/50 focus:border-ember focus:outline-none"
+              />
+              <button
+                onClick={() => {
+                  // Built entirely from what's already loaded — no extra
+                  // request, no server involved. A plain spreadsheet-ready
+                  // file downloads straight to Rajeev's device.
+                  const header = ["Name", "Email", "Phone", "Focus", "Referred by", "Status", "Total bookings", "Last booking"];
+                  const rows = clients.map((c) => [
+                    c.name, c.email, c.phone || "", c.focus || "", c.referred_by_name || "",
+                    c.status, String(c.total_bookings), c.last_booking || "",
+                  ]);
+                  const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+                  const csv = [header, ...rows].map((r) => r.map(escape).join(",")).join("\r\n");
+                  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `fwr-clients-${todayIso()}.csv`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
+                disabled={clients.length === 0}
+                className="shrink-0 rounded-full border border-cream/15 px-4 py-3 text-xs font-semibold text-cream-dim hover:border-ember hover:text-ember disabled:opacity-40"
+              >
+                Export CSV
+              </button>
+            </div>
             {clientsLoading ? (
               <p className="mt-6 text-cream-dim">Loading…</p>
             ) : clients.length === 0 ? (

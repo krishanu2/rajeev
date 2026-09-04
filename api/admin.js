@@ -356,12 +356,14 @@ async function opAffiliates(req, res, pool) {
     }
   }
 
+  // Sorted as a leaderboard — whoever has referred the most people leads.
   const { rows: affiliates } = await pool.query(
     `select a.id, a.name, a.code,
             to_char(a.created_at at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as created_at,
-            (select count(*) from clients c where c.referred_by = a.code) as referral_count
+            (select count(*) from clients c where c.referred_by = a.code) as referral_count,
+            (select count(*) from affiliate_clicks ac where ac.code = a.code) as click_count
      from affiliates a
-     order by a.created_at desc`
+     order by referral_count desc, a.created_at desc`
   );
   const { rows: referred } = await pool.query(
     "select name, referred_by from clients where referred_by is not null"
@@ -372,14 +374,75 @@ async function opAffiliates(req, res, pool) {
   }
   res.status(200).json({
     ok: true,
-    affiliates: affiliates.map((a) => ({
-      id: a.id,
-      name: a.name,
-      code: a.code,
-      createdAt: a.created_at,
-      referralCount: Number(a.referral_count),
-      referredNames: byCode[a.code] || [],
-    })),
+    affiliates: affiliates.map((a) => {
+      const clicks = Number(a.click_count);
+      const referrals = Number(a.referral_count);
+      return {
+        id: a.id,
+        name: a.name,
+        code: a.code,
+        createdAt: a.created_at,
+        referralCount: referrals,
+        clickCount: clicks,
+        // Null (not 0%) when there's no click data yet — the UI shows
+        // "—" instead of a misleading "0%".
+        conversionRate: clicks > 0 ? Math.round((referrals / clicks) * 100) : null,
+        referredNames: byCode[a.code] || [],
+      };
+    }),
+  });
+}
+
+// Plain-language business insights — every number here comes straight from
+// real bookings, nothing simulated. Kept deliberately simple (a few
+// sentences + short bar lists) rather than a full charting library, so a
+// first-time computer user can read it without training.
+async function opInsights(req, res, pool) {
+  const { rows: weekly } = await pool.query(
+    `select to_char(date_trunc('week', slot_date), 'YYYY-MM-DD') as week_start, count(*) as n
+     from slot_events
+     where status = 'booked' and slot_date >= (now() at time zone 'Asia/Kolkata')::date - 56
+     group by 1 order by 1 asc`
+  );
+  const { rows: byFocus } = await pool.query(
+    `select focus, count(*) as n
+     from slot_events
+     where status = 'booked' and focus is not null and focus <> ''
+     group by focus order by n desc limit 6`
+  );
+  const { rows: byDow } = await pool.query(
+    `select to_char(slot_date, 'Dy') as dow, count(*) as n
+     from slot_events
+     where status = 'booked'
+     group by 1, extract(dow from slot_date) order by n desc limit 1`
+  );
+  const { rows: byHour } = await pool.query(
+    `select left(slot_time::text, 5) as hour, count(*) as n
+     from slot_events
+     where status = 'booked'
+     group by 1 order by n desc limit 1`
+  );
+  const { rows: [totals] } = await pool.query(
+    `select
+       (select count(*) from slot_events where status = 'booked') as total_bookings,
+       (select count(*) from slot_events where status = 'booked'
+          and slot_date >= (now() at time zone 'Asia/Kolkata')::date - 30) as bookings_this_month`
+  );
+
+  const busiestDay = byDow[0]?.dow?.trim() || null;
+  const busiestHour = byHour[0]?.hour || null;
+  let sentence = "Not enough bookings yet to spot a pattern — check back after a few more calls.";
+  if (busiestDay && busiestHour) {
+    sentence = `Your busiest day is ${busiestDay}, and ${busiestHour} IST is your most-requested time — consider keeping extra slots open there.`;
+  }
+
+  res.status(200).json({
+    ok: true,
+    sentence,
+    totalBookings: Number(totals.total_bookings),
+    bookingsThisMonth: Number(totals.bookings_this_month),
+    weekly: weekly.map((w) => ({ weekStart: w.week_start, count: Number(w.n) })),
+    focusBreakdown: byFocus.map((f) => ({ focus: f.focus, count: Number(f.n) })),
   });
 }
 
@@ -391,6 +454,7 @@ const OPS = {
   faqs: opFaqs,
   gallery: opGallery,
   affiliates: opAffiliates,
+  insights: opInsights,
 };
 
 export default async (req, res) => {

@@ -4,10 +4,13 @@ import { Menu, X } from "lucide-react";
 import { nav } from "../data/content";
 import Magnetic from "./Magnetic";
 import fwrLogo from "../assets/fwr-logo.png";
+import ReferralBanner from "./ReferralBanner";
+import { useSelection } from "../context/SelectionContext";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { referrerName, dismissReferrer } = useSelection();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -38,6 +41,7 @@ export default function Nav() {
             : "bg-transparent"
         }`}
       >
+      {referrerName && <ReferralBanner name={referrerName} onDismiss={dismissReferrer} />}
       <div className="container-px mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 py-4">
         <a href="#top" className="shrink-0 transition-opacity hover:opacity-80">
           <img src={fwrLogo} alt="FWR — Fit with Rajeev" className="h-6 w-auto sm:h-7" />
