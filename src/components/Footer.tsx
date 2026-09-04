@@ -1,4 +1,4 @@
-import { AtSign, Mail, Phone } from "lucide-react";
+import { AtSign, Mail } from "lucide-react";
 import { footer, nav, site } from "../data/content";
 import fwrLogo from "../assets/fwr-logo.png";
 
@@ -46,16 +46,6 @@ export default function Footer() {
                     className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
                   >
                     <Mail size={15} /> {site.email}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={`https://wa.me/${site.whatsappNumber}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-sm text-cream-dim hover:text-cream"
-                  >
-                    <Phone size={15} /> WhatsApp
                   </a>
                 </li>
               </ul>

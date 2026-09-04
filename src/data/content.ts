@@ -17,8 +17,6 @@ export const site = {
   instagramUrl: "https://www.instagram.com/coach.rajeevhb",
   funWithFitnessUrl: "https://www.instagram.com/fun.wth.fitness",
   email: "rajeevhb.91@gmail.com",
-  // wa.me needs the number with country code, digits only (no +, no spaces).
-  whatsappNumber: "919986814742",
   city: "Bengaluru, India",
 };
 
