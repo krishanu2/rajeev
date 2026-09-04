@@ -15,6 +15,7 @@ import Footer from "./components/Footer";
 import CursorGlow from "./components/CursorGlow";
 import ScrollProgress from "./components/ScrollProgress";
 import IntroOverlay from "./components/IntroOverlay";
+import WhatsAppButton from "./components/WhatsAppButton";
 import Beat from "./components/Beat";
 import { SelectionProvider } from "./context/SelectionContext";
 
@@ -26,6 +27,7 @@ export default function App() {
       <IntroOverlay />
       <ScrollProgress />
       <CursorGlow />
+      <WhatsAppButton />
       <Nav />
       <main>
         <Beat id="confrontation" tone="confrontation">
