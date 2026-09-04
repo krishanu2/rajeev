@@ -35,7 +35,11 @@ async function opDay(req, res, pool) {
     return;
   }
   const { rows } = await pool.query(
-    "select slot_time, status, name, contact, phone, reason, meet_link, focus from slot_events where slot_date = $1",
+    `select se.slot_time, se.status, se.name, se.contact, se.phone, se.reason, se.meet_link, se.focus,
+            a.name as referred_by_name
+     from slot_events se
+     left join affiliates a on a.code = se.referred_by
+     where se.slot_date = $1`,
     [date]
   );
   const byTime = new Map(rows.map((r) => [r.slot_time.slice(0, 5), r]));
@@ -51,6 +55,7 @@ async function opDay(req, res, pool) {
           reason: row.reason,
           meetLink: row.meet_link,
           focus: row.focus,
+          referredByName: row.referred_by_name,
         }
       : { time, status: "open" };
   });
@@ -181,14 +186,17 @@ async function opClients(req, res, pool) {
   let where = "";
   if (q) {
     params.push(`%${q}%`);
-    where = "where name ilike $1 or email ilike $1 or focus ilike $1";
+    where = "where c.name ilike $1 or c.email ilike $1 or c.focus ilike $1";
   }
   const { rows: clients } = await pool.query(
-    `select id, email, name, phone, focus, status, notes, total_bookings,
-            to_char(last_booking, 'YYYY-MM-DD') as last_booking,
-            to_char(first_seen at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as first_seen
-     from clients ${where}
-     order by last_booking desc nulls last, first_seen desc
+    `select c.id, c.email, c.name, c.phone, c.focus, c.status, c.notes, c.total_bookings,
+            a.name as referred_by_name,
+            to_char(c.last_booking, 'YYYY-MM-DD') as last_booking,
+            to_char(c.first_seen at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as first_seen
+     from clients c
+     left join affiliates a on a.code = c.referred_by
+     ${where}
+     order by c.last_booking desc nulls last, c.first_seen desc
      limit 500`,
     params
   );
@@ -294,7 +302,96 @@ async function opGallery(req, res, pool) {
   res.status(200).json({ ok: true, items });
 }
 
-const OPS = { day: opDay, week: opWeek, action: opAction, clients: opClients, faqs: opFaqs, gallery: opGallery };
+const AFFILIATE_NAME_MAX = 40;
+
+// Builds a short, shareable, unique code from the affiliate's name
+// (e.g. "Arpita" -> "ARPITA4F2") — readable enough that Rajeev can tell
+// whose link it is just by glancing at the code, random suffix so two
+// affiliates with similar names never collide.
+function makeAffiliateCode(name) {
+  const base = name.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8) || "REF";
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `${base}${rand}`.slice(0, 14);
+}
+
+async function opAffiliates(req, res, pool) {
+  if (req.method === "POST") {
+    const { action, id, name } = req.body || {};
+    if (action === "add") {
+      if (!name?.trim()) {
+        res.status(400).json({ error: "a name is required" });
+        return;
+      }
+      // Collision odds are astronomically low (4 random base-36 chars), but
+      // check anyway rather than trust luck — retry a handful of times.
+      let code = null;
+      for (let i = 0; i < 6; i++) {
+        const candidate = makeAffiliateCode(name);
+        const { rows } = await pool.query("select 1 from affiliates where code = $1", [candidate]);
+        if (rows.length === 0) {
+          code = candidate;
+          break;
+        }
+      }
+      if (!code) {
+        res.status(500).json({ error: "could not generate a unique code, try again" });
+        return;
+      }
+      await pool.query("insert into affiliates (name, code) values ($1, $2)", [
+        name.trim().slice(0, AFFILIATE_NAME_MAX),
+        code,
+      ]);
+    } else if (action === "delete") {
+      if (!id) {
+        res.status(400).json({ error: "id required" });
+        return;
+      }
+      // Referred clients/bookings keep their referred_by code untouched —
+      // deleting an affiliate only removes it from this management list, it
+      // never rewrites history.
+      await pool.query("delete from affiliates where id = $1", [id]);
+    } else {
+      res.status(400).json({ error: "action must be add or delete" });
+      return;
+    }
+  }
+
+  const { rows: affiliates } = await pool.query(
+    `select a.id, a.name, a.code,
+            to_char(a.created_at at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as created_at,
+            (select count(*) from clients c where c.referred_by = a.code) as referral_count
+     from affiliates a
+     order by a.created_at desc`
+  );
+  const { rows: referred } = await pool.query(
+    "select name, referred_by from clients where referred_by is not null"
+  );
+  const byCode = {};
+  for (const r of referred) {
+    (byCode[r.referred_by] ||= []).push(r.name);
+  }
+  res.status(200).json({
+    ok: true,
+    affiliates: affiliates.map((a) => ({
+      id: a.id,
+      name: a.name,
+      code: a.code,
+      createdAt: a.created_at,
+      referralCount: Number(a.referral_count),
+      referredNames: byCode[a.code] || [],
+    })),
+  });
+}
+
+const OPS = {
+  day: opDay,
+  week: opWeek,
+  action: opAction,
+  clients: opClients,
+  faqs: opFaqs,
+  gallery: opGallery,
+  affiliates: opAffiliates,
+};
 
 export default async (req, res) => {
   if (!isAdmin(req)) {

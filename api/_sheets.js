@@ -54,22 +54,25 @@ export async function syncClientsToSheet() {
     if (!sheetId) return;
 
     const { rows } = await getPool().query(
-      `select name, email, phone, focus, status, notes, total_bookings,
-              to_char(last_booking, 'YYYY-MM-DD') as last_booking,
-              to_char(first_seen at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as first_seen
-       from clients order by last_booking desc nulls last, first_seen desc`
+      `select c.name, c.email, c.phone, c.focus, c.status, c.notes, c.total_bookings,
+              a.name as referred_by_name,
+              to_char(c.last_booking, 'YYYY-MM-DD') as last_booking,
+              to_char(c.first_seen at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as first_seen
+       from clients c
+       left join affiliates a on a.code = c.referred_by
+       order by c.last_booking desc nulls last, c.first_seen desc`
     );
     const values = [
-      ["Name", "Email", "Phone", "Focus area", "Status", "Notes", "Total bookings", "Last booking", "First seen"],
+      ["Name", "Email", "Phone", "Focus area", "Status", "Notes", "Total bookings", "Last booking", "First seen", "Referred by"],
       ...rows.map((r) => [
         r.name, r.email, r.phone || "", r.focus || "", r.status, r.notes,
-        String(r.total_bookings), r.last_booking || "", r.first_seen,
+        String(r.total_bookings), r.last_booking || "", r.first_seen, r.referred_by_name || "",
       ]),
     ];
 
     const base = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values`;
     // Clear first so rows deleted from the DB don't linger at the bottom.
-    await fetch(`${base}/Clients!A:I:clear`, {
+    await fetch(`${base}/Clients!A:J:clear`, {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}` },
     });

@@ -9,7 +9,7 @@ export default async (req, res) => {
     res.status(405).json({ error: "POST only" });
     return;
   }
-  const { date, time, name, contact, phone, reason, focus } = req.body || {};
+  const { date, time, name, contact, phone, reason, focus, ref } = req.body || {};
   if (!date || !time || !name || !contact || !SLOT_TIMES.includes(time)) {
     res.status(400).json({ error: "date, time, name, contact required" });
     return;
@@ -30,14 +30,31 @@ export default async (req, res) => {
     return;
   }
   try {
+    // A referral code (from the ?ref= link, carried in via the client's
+    // localStorage) is only ever trusted if it matches a real affiliate row —
+    // an unknown/typo'd/tampered code is silently dropped, never blocks the
+    // booking itself.
+    let referredBy = null;
+    let referredByName = null;
+    if (ref) {
+      const { rows: affRows } = await getPool().query(
+        "select code, name from affiliates where code = $1",
+        [String(ref).trim().toUpperCase()]
+      );
+      if (affRows.length) {
+        referredBy = affRows[0].code;
+        referredByName = affRows[0].name;
+      }
+    }
+
     // ON CONFLICT on the (slot_date, slot_time) primary key is what makes this
     // safe against two people booking the same slot at the same instant —
     // the database itself only lets one of the two concurrent inserts win.
     const { rowCount } = await getPool().query(
-      `insert into slot_events (slot_date, slot_time, status, name, contact, phone, reason, focus)
-       values ($1, $2, 'booked', $3, $4, $5, $6, $7)
+      `insert into slot_events (slot_date, slot_time, status, name, contact, phone, reason, focus, referred_by)
+       values ($1, $2, 'booked', $3, $4, $5, $6, $7, $8)
        on conflict (slot_date, slot_time) do nothing`,
-      [date, time, name, contact, phone.trim(), reason.trim().slice(0, 300), focus || null]
+      [date, time, name, contact, phone.trim(), reason.trim().slice(0, 300), focus || null, referredBy]
     );
     if (rowCount === 0) {
       res.status(409).json({ error: "That slot was just taken. Please pick another." });
@@ -47,16 +64,20 @@ export default async (req, res) => {
     // Every booking creates or refreshes a CRM record, keyed on the email.
     // A repeat client keeps their status/notes; only the booking counters and
     // (if newly provided) focus area move.
+    // referred_by is "first touch wins" — a repeat client keeps whoever
+    // originally referred them, even if a later booking arrives with no
+    // ref code (or a different one) attached.
     await getPool().query(
-      `insert into clients (email, name, phone, focus, last_booking, total_bookings)
-       values ($1, $2, $3, $4, $5, 1)
+      `insert into clients (email, name, phone, focus, referred_by, last_booking, total_bookings)
+       values ($1, $2, $3, $4, $5, $6, 1)
        on conflict (email) do update set
          name = excluded.name,
          phone = excluded.phone,
          focus = coalesce(excluded.focus, clients.focus),
+         referred_by = coalesce(clients.referred_by, excluded.referred_by),
          last_booking = excluded.last_booking,
          total_bookings = clients.total_bookings + 1`,
-      [contact.trim().toLowerCase(), name.trim(), phone.trim(), focus || null, date]
+      [contact.trim().toLowerCase(), name.trim(), phone.trim(), focus || null, referredBy, date]
     );
 
     // If Rajeev's Google Calendar is connected, this creates the event with
@@ -107,6 +128,7 @@ export default async (req, res) => {
           <p style="margin:0">📞 ${phone}</p>
           <p style="margin:8px 0 0">Reason: ${reason.trim().slice(0, 300)}</p>
           ${focus ? `<p style="margin:0">Focus area: <strong>${focus}</strong></p>` : ""}
+          ${referredByName ? `<p style="margin:8px 0 0;color:#b8860b">🔗 Referred by: <strong>${referredByName}</strong></p>` : ""}
           <p style="margin:12px 0 0"><strong>${date} at ${time} IST</strong> (30 min)</p>
           ${meetLink ? `<p style="margin:12px 0 0"><a href="${meetLink}">Join with Google Meet</a></p>` : ""}
           <p style="margin:16px 0 0;color:#888;font-size:13px">The event is already on your Google Calendar.

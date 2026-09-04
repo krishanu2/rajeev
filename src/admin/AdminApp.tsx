@@ -10,6 +10,7 @@ type Slot = {
   reason?: string | null;
   meetLink?: string | null;
   focus?: string | null;
+  referredByName?: string | null;
 };
 
 type Client = {
@@ -18,6 +19,7 @@ type Client = {
   name: string;
   phone: string | null;
   focus: string | null;
+  referred_by_name?: string | null;
   status: "lead" | "active" | "paused" | "completed";
   notes: string;
   total_bookings: number;
@@ -29,6 +31,14 @@ type Stats = { totalClients: number; newThisMonth: number; callsNext7Days: numbe
 type WeekDay = { date: string; booked: number; blocked: number; open: number };
 type Faq = { id: number; question: string; answer: string };
 type GalleryItem = { id: number; name: string; review: string; before_img: string | null; after_img: string };
+type Affiliate = {
+  id: number;
+  name: string;
+  code: string;
+  createdAt: string;
+  referralCount: number;
+  referredNames: string[];
+};
 
 const GALLERY_NAME_MAX = 40;
 const GALLERY_REVIEW_MAX = 90;
@@ -84,7 +94,7 @@ export default function AdminApp() {
   const [input, setInput] = useState("");
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [tab, setTab] = useState<"schedule" | "clients" | "faqs" | "gallery">("schedule");
+  const [tab, setTab] = useState<"schedule" | "clients" | "faqs" | "gallery" | "affiliates">("schedule");
 
   // Schedule state
   const [date, setDate] = useState(todayIso());
@@ -111,6 +121,12 @@ export default function AdminApp() {
   const [galleryBusy, setGalleryBusy] = useState(false);
   // Bumping this remounts the file inputs so they visibly clear after adding.
   const [galleryFormKey, setGalleryFormKey] = useState(0);
+
+  // Affiliates state
+  const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
+  const [newAffiliateName, setNewAffiliateName] = useState("");
+  const [affiliatesBusy, setAffiliatesBusy] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   // Clients state
   const [clients, setClients] = useState<Client[]>([]);
@@ -208,6 +224,29 @@ export default function AdminApp() {
     }
   };
 
+  const loadAffiliates = (k: string) => {
+    fetch("/api/admin/affiliates", { headers: headers(k) })
+      .then((r) => r.json())
+      .then((data) => setAffiliates(data.affiliates || []))
+      .catch(() => {});
+  };
+
+  const affiliateAction = async (body: Record<string, unknown>) => {
+    setAffiliatesBusy(true);
+    try {
+      const res = await fetch("/api/admin/affiliates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers(key || "testing") },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.affiliates) setAffiliates(data.affiliates);
+      return res.ok;
+    } finally {
+      setAffiliatesBusy(false);
+    }
+  };
+
   useEffect(() => {
     // TEMPORARY: login gate disabled for testing — auto-loads regardless of key.
     const k = key || "testing";
@@ -216,6 +255,7 @@ export default function AdminApp() {
     loadClients(k);
     loadFaqs(k);
     loadGallery(k);
+    loadAffiliates(k);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -334,6 +374,7 @@ export default function AdminApp() {
               ["clients", "Clients"],
               ["faqs", "FAQs"],
               ["gallery", "Gallery"],
+              ["affiliates", "Affiliates"],
             ] as const
           ).map(([t, label]) => (
             <button
@@ -466,6 +507,9 @@ export default function AdminApp() {
                         )}
                         {s.reason && <p className="mt-1 text-[0.65rem] italic text-cream-dim/80">"{s.reason}"</p>}
                         {s.focus && <p className="mt-1 text-[0.65rem] text-ember-light">{s.focus}</p>}
+                        {s.referredByName && (
+                          <p className="mt-1 text-[0.65rem] text-accent-pink">🔗 via {s.referredByName}</p>
+                        )}
                         {s.meetLink && (
                           <a
                             href={s.meetLink}
@@ -787,6 +831,114 @@ export default function AdminApp() {
           </>
         )}
 
+        {tab === "affiliates" && (
+          <>
+            <p className="mt-6 text-xs leading-relaxed text-cream-dim/70">
+              Give someone (family, a happy client, anyone) their own link. Anyone who books
+              through it gets tagged as their referral — automatically, forever — so you always
+              know who's bringing people in. No password or account needed for them.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-ember/25 bg-ember/5 p-4">
+              <p className="text-sm font-semibold text-cream">Create a new referral link</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <input
+                  value={newAffiliateName}
+                  onChange={(e) => setNewAffiliateName(e.target.value)}
+                  placeholder="Their name (e.g. Arpita)"
+                  className="min-w-0 flex-1 rounded-lg border border-cream/15 bg-ink px-4 py-3 text-sm text-cream placeholder:text-cream-dim/40 focus:border-ember focus:outline-none"
+                />
+                <button
+                  onClick={async () => {
+                    const ok = await affiliateAction({ action: "add", name: newAffiliateName });
+                    if (ok) setNewAffiliateName("");
+                  }}
+                  disabled={affiliatesBusy || !newAffiliateName.trim()}
+                  className="shrink-0 rounded-full bg-ember px-6 py-3 text-sm font-semibold text-ink disabled:opacity-40"
+                >
+                  Generate link
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3">
+              {affiliates.map((a) => {
+                const link = `${window.location.origin}/?ref=${a.code}`;
+                const waMessage = `Hey! Here's my link to book a call with Rajeev — ${link}`;
+                return (
+                  <div key={a.id} className="rounded-xl border border-cream/10 bg-ink-soft p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-cream">{a.name}</p>
+                        <p className="font-data text-xs text-cream-dim">{a.code} · since {a.createdAt}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-data text-xl font-semibold text-ember">{a.referralCount}</p>
+                        <p className="text-[0.6rem] uppercase tracking-widest text-cream-dim">
+                          referral{a.referralCount !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-2 rounded-lg border border-cream/10 bg-ink px-3 py-2">
+                      <p className="min-w-0 flex-1 truncate font-data text-xs text-cream-dim">{link}</p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(link);
+                          setCopiedCode(a.code);
+                          setTimeout(() => setCopiedCode((c) => (c === a.code ? null : c)), 1500);
+                        }}
+                        className="shrink-0 rounded-full border border-cream/15 px-3 py-1 text-[0.65rem] font-semibold text-cream-dim hover:border-ember hover:text-ember"
+                      >
+                        {copiedCode === a.code ? "Copied!" : "Copy link"}
+                      </button>
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(waMessage);
+                          setCopiedCode(`msg-${a.code}`);
+                          setTimeout(() => setCopiedCode((c) => (c === `msg-${a.code}` ? null : c)), 1500);
+                        }}
+                        className="text-xs font-semibold text-ember-light underline hover:text-ember"
+                      >
+                        {copiedCode === `msg-${a.code}` ? "Copied! Paste it in WhatsApp" : "Copy WhatsApp message"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `Remove ${a.name}'s referral link? Their past referrals stay on record — this only stops the link working for new bookings.`
+                            )
+                          ) {
+                            affiliateAction({ action: "delete", id: a.id });
+                          }
+                        }}
+                        disabled={affiliatesBusy}
+                        className="ml-auto text-xs font-semibold text-red-400 underline disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    {a.referredNames.length > 0 && (
+                      <p className="mt-3 border-t border-cream/10 pt-2 text-[0.7rem] text-cream-dim">
+                        Referred: {a.referredNames.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+              {affiliates.length === 0 && (
+                <p className="text-sm text-cream-dim">
+                  No referral links yet — create the first one above.
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
         {tab === "clients" && (
           <>
             <input
@@ -817,6 +969,11 @@ export default function AdminApp() {
                         {c.focus && (
                           <span className="mt-1.5 inline-block rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 text-[0.65rem] text-ember-light">
                             {c.focus}
+                          </span>
+                        )}
+                        {c.referred_by_name && (
+                          <span className="ml-1.5 mt-1.5 inline-block rounded-full border border-accent-pink/30 bg-accent-pink/10 px-2.5 py-0.5 text-[0.65rem] text-accent-pink">
+                            🔗 via {c.referred_by_name}
                           </span>
                         )}
                       </div>

@@ -87,10 +87,20 @@ export default function BookingWidget() {
     setSubmitting(true);
     setError("");
     try {
+      const ref = localStorage.getItem("fwr_ref") || undefined;
       const res = await fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: selectedDate, time: picked, name, contact, phone, reason, focus: selectedLabel }),
+        body: JSON.stringify({
+          date: selectedDate,
+          time: picked,
+          name,
+          contact,
+          phone,
+          reason,
+          focus: selectedLabel,
+          ref,
+        }),
       });
       if (res.status === 409) {
         setError("That slot was just taken — pick another.");
